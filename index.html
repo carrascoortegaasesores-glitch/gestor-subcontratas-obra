@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gestor de Subcontratas de Obra</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
+.header{background:#fff;border-bottom:1px solid #e5e5e0;padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.header h1{font-size:16px;font-weight:600;flex:1}
+.header span{font-size:12px;color:#888}
+.container{max-width:780px;margin:0 auto;padding:20px 16px}
+button{cursor:pointer;font-family:inherit;font-size:13px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;padding:7px 14px;display:inline-flex;align-items:center;gap:5px;transition:background .1s}
+button:hover{background:#f0f0ec}
+button.primary{background:#1a1a1a;color:#fff;border-color:transparent}
+button.primary:hover{background:#333}
+button.danger{color:#a32d2d;border-color:#f0c0c0}
+button.danger:hover{background:#fff5f5}
+input,select{font-family:inherit;font-size:13px;width:100%;padding:8px 11px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;outline:none}
+input:focus,select:focus{border-color:#888}
+label{font-size:12px;color:#666;display:block;margin-bottom:4px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 14px}
+.stat-n{font-size:22px;font-weight:600}
+.stat-l{font-size:11px;color:#888;margin-top:2px}
+.card{background:#fff;border:1px solid #e5e5e0;border-radius:12px;margin-bottom:10px;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none}
+.card-head:hover{background:#fafaf8}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.card-info{flex:1;min-width:0}
+.card-name{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-sub{font-size:12px;color:#888;margin-top:1px}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px}
+.chevron{font-size:12px;color:#aaa;transition:transform .2s}
+.card-body{padding:0 16px 16px;border-top:1px solid #f0f0ec}
+.bar-wrap{height:4px;background:#f0f0ec;border-radius:2px;margin:14px 0}
+.bar{height:4px;border-radius:2px;transition:width .4s}
+.sec-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 7px}
+.doc{display:flex;align-items:flex-start;gap:9px;padding:6px 6px;border-radius:6px;cursor:pointer}
+.doc:hover{background:#f8f8f5}
+.cb{width:17px;height:17px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s}
+.cb.on{background:#1D9E75;border-color:#1D9E75}
+.doc-label{font-size:13px;color:#555;line-height:1.5}
+.doc.on .doc-label{text-decoration:line-through;color:#bbb}
+.tm{font-size:10px;padding:2px 6px;background:#fef3e2;color:#8a5700;border-radius:8px;margin-left:4px;font-weight:500}
+.actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0ec}
+.empty{text-align:center;padding:3rem 1rem;color:#aaa}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty p{font-size:14px;line-height:1.7}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center;padding:20px}
+.overlay.on{display:flex}
+.modal{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,0.18)}
+.modal h2{font-size:15px;font-weight:600;margin-bottom:16px}
+.field{margin-bottom:13px}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:13px;padding:10px 18px;border-radius:20px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.note{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 16px;font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+@media(max-width:500px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .header h1{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📋 Gestor de Subcontratas</h1>
+  <span id="obra-label">Obra</span>
+  <button class="primary" onclick="abrirModal(null)">+ Nueva empresa</button>
+</div>
+
+<div class="container">
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="sn-total">0</div><div class="stat-l">Empresas</div></div>
+    <div class="stat"><div class="stat-n" id="sn-ok" style="color:#1D9E75">0</div><div class="stat-l">Al día</div></div>
+    <div class="stat"><div class="stat-n" id="sn-inc" style="color:#EF9F27">0</div><div class="stat-l">Incompletas</div></div>
+    <div class="stat"><div class="stat-n" id="sn-pct">—</div><div class="stat-l">Completado</div></div>
+  </div>
+
+  <div id="lista"></div>
+
+  <div class="note">
+    💡 Los datos se guardan automáticamente en este navegador. Para revisar un documento escaneado, súbelo en el chat de Claude indicando a qué empresa pertenece.
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 id="modal-h">Nueva subcontrata</h2>
+    <div class="field"><label>Nombre de la empresa *</label><input id="fn" placeholder="Ej: Instalaciones García S.L."/></div>
+    <div class="field"><label>Gremio / actividad</label><input id="fg" placeholder="Ej: Electricidad, Fontanería…"/></div>
+    <div class="field"><label>Persona de contacto</label><input id="fc" placeholder="Nombre y cargo"/></div>
+    <div class="field"><label>Email</label><input id="fe" type="email" placeholder="email@empresa.com"/></div>
+    <div class="mfoot">
+      <button onclick="cerrarModal()">Cancelar</button>
+      <button class="primary" onclick="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SECS = [
+  {t:"1. Documentación de empresa", docs:[
+    ["Escritura de constitución y poderes del representante legal",""],
+    ["CIF de la empresa",""],
+    ["Alta en el IAE (epígrafe correspondiente)",""],
+    ["Certificado corriente de pago AEAT","trim"],
+    ["Certificado corriente de pago TGSS","mens"],
+    ["Póliza de Responsabilidad Civil vigente y último recibo",""],
+    ["Póliza Seguro de Convenio (accidentes/vida) y último recibo",""],
+    ["Adhesión a la Mutua Colaboradora con la Seguridad Social",""],
+    ["REA (Registro de Empresas Acreditadas) en vigor",""],
+    ["Evaluación de Riesgos y Planificación Actividad Preventiva",""],
+    ["Modalidad preventiva acreditada (SPP, SPA o mancomunado)",""],
+    ["Plan de Seguridad y Salud / adhesión al plan del contratista",""],
+    ["Certificado aprobación PSS por Coordinación de Seguridad",""]
+  ]},
+  {t:"2. Documentación de trabajadores", docs:[
+    ["DNI / NIE en vigor",""],
+    ["Contrato de trabajo en vigor y categoría profesional",""],
+    ["Certificado de aptitud médica vigente",""],
+    ["Ficha de entrega de EPIs firmada por el trabajador",""],
+    ["Formación PRL mínimo 20 h (Convenio Construcción)",""],
+    ["Formación específica trabajos especiales (si procede)",""],
+    ["Acreditación Recurso Preventivo (si aplica)",""],
+    ["Tarjeta Profesional de la Construcción (TPC) en vigor",""],
+    ["Acuse recibo Art. 18 LPRL — información riesgos de la obra",""],
+    ["Acuse recibo Art. 19 LPRL — formación e instrucciones de seguridad",""]
+  ]},
+  {t:"3. Documentación mensual", docs:[
+    ["Certificado TGSS corriente de pago — mes en curso","mens"],
+    ["RNT (Relación Nominal de Trabajadores) mes anterior","mens"],
+    ["RLC (Recibo de Liquidación de Cotizaciones) mes anterior","mens"],
+    ["Justificante pago cotizaciones SS (ITA) mes anterior","mens"],
+    ["Partes de presencia — trabajadores en obra mes anterior","mens"],
+    ["Justificante de pago de salarios mes anterior","mens"],
+    ["Acta de charla / reunión de seguridad","mens"],
+    ["Registro de inspecciones de equipos y maquinaria","mens"]
+  ]},
+  {t:"4. Maquinaria y equipos", docs:[
+    ["Ficha técnica, marcado CE y declaración de conformidad CE",""],
+    ["Certificado última revisión / ITV y seguro del equipo vigente",""],
+    ["Certificado de operador / carnet del trabajador que lo maneja",""]
+  ]}
+];
+
+const TOTAL = SECS.reduce((a,s)=>a+s.docs.length,0);
+const PAL = [
+  ['#185FA5','#ddeeff'],['#1D9E75','#d4f5ea'],['#993C1D','#fce8e0'],
+  ['#534AB7','#eceafc'],['#3B6D11','#e4f2d4'],['#BA7517','#fef3d4'],
+  ['#993556','#fce8f0']
+];
+
+let data = [];
+let editId = null;
+
+function load(){
+  try{ const s=localStorage.getItem('sub_obra_v1'); if(s) data=JSON.parse(s); }catch(e){ data=[]; }
+  paint();
+}
+
+function save(){
+  try{ localStorage.setItem('sub_obra_v1', JSON.stringify(data)); }catch(e){}
+}
+
+function initChecks(){
+  const c={};
+  SECS.forEach(s=>s.docs.forEach(([d])=>c[d]=false));
+  return c;
+}
+
+function pct(e){ return Math.round(Object.values(e.checks).filter(Boolean).length/TOTAL*100); }
+function done(e){ return Object.values(e.checks).filter(Boolean).length; }
+
+function colores(p){
+  if(p===100) return ['#1D9E75','#d4f5ea'];
+  if(p>0)     return ['#EF9F27','#fef3d4'];
+  return              ['#E24B4A','#fce8e8'];
+}
+
+function abrirModal(id){
+  editId=id;
+  if(id){
+    const e=data.find(x=>x.id===id);
+    document.getElementById('fn').value=e.n;
+    document.getElementById('fg').value=e.g||'';
+    document.getElementById('fc').value=e.c||'';
+    document.getElementById('fe').value=e.em||'';
+    document.getElementById('modal-h').textContent='Editar empresa';
+  } else {
+    ['fn','fg','fc','fe'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('modal-h').textContent='Nueva subcontrata';
+  }
+  document.getElementById('overlay').classList.add('on');
+  setTimeout(()=>document.getElementById('fn').focus(),80);
+}
+
+function cerrarModal(){ document.getElementById('overlay').classList.remove('on'); }
+document.getElementById('overlay').addEventListener('click', cerrarModal);
+
+function guardar(){
+  const n=document.getElementById('fn').value.trim();
+  if(!n){ document.getElementById('fn').focus(); return; }
+  if(editId){
+    const e=data.find(x=>x.id===editId);
+    e.n=n; e.g=document.getElementById('fg').value.trim();
+    e.c=document.getElementById('fc').value.trim(); e.em=document.getElementById('fe').value.trim();
+    toast('Empresa actualizada ✓');
+  } else {
+    const ci=data.length%PAL.length;
+    data.push({
+      id:''+Date.now(), n, g:document.getElementById('fg').value.trim(),
+      c:document.getElementById('fc').value.trim(), em:document.getElementById('fe').value.trim(),
+      col:PAL[ci][0], bg:PAL[ci][1], checks:initChecks(), open:true
+    });
+    toast('Empresa dada de alta ✓');
+  }
+  cerrarModal(); save(); paint();
+}
+
+function toggleDoc(id, doc){
+  const e=data.find(x=>x.id===id); if(!e) return;
+  e.checks[doc]=!e.checks[doc];
+  save(); paint();
+}
+
+function toggleOpen(id){
+  const e=data.find(x=>x.id===id); if(!e) return;
+  e.open=!e.open; save(); paint();
+}
+
+function del(id){
+  if(!confirm('¿Eliminar esta subcontrata y toda su documentación?')) return;
+  data=data.filter(x=>x.id!==id); save(); paint(); toast('Empresa eliminada');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function paint(){
+  const lista=document.getElementById('lista');
+  if(!data.length){
+    lista.innerHTML=`<div class="empty">
+      <div class="empty-icon">🏗️</div>
+      <p>Aún no hay subcontratas dadas de alta.<br>Pulsa <strong>+ Nueva empresa</strong> para empezar.</p>
+    </div>`;
+    document.getElementById('sn-total').textContent=0;
+    document.getElementById('sn-ok').textContent=0;
+    document.getElementById('sn-inc').textContent=0;
+    document.getElementById('sn-pct').textContent='—';
+    return;
+  }
+
+  lista.innerHTML=data.map(e=>{
+    const p=pct(e), d=done(e);
+    const [col,bg]=colores(p);
+    const ini=e.n.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
+
+    let docsHTML='';
+    if(e.open){
+      SECS.forEach(s=>{
+        docsHTML+=`<div class="sec-title">${s.t}</div>`;
+        s.docs.forEach(([doc,tag])=>{
+          const on=e.checks[doc];
+          const id_safe='d_'+e.id+'_'+doc.replace(/[^a-zA-Z0-9]/g,'_');
+          docsHTML+=`<div class="doc${on?' on':''}" id="${id_safe}" onclick="toggleDoc('${e.id}',${JSON.stringify(doc)})">
+            <div class="cb${on?' on':''}">${on?'✓':''}</div>
+            <span class="doc-label">${doc}${tag==='mens'?'<span class="tm">mensual</span>':tag==='trim'?'<span class="tm" style="background:#e8f4fd;color:#185FA5">trimestral</span>':''}</span>
+          </div>`;
+        });
+      });
+    }
+
+    return `<div class="card">
+      <div class="card-head" onclick="toggleOpen('${e.id}')">
+        <div class="avatar" style="background:${e.bg};color:${e.col}">${ini}</div>
+        <div class="card-info">
+          <div class="card-name">${e.n}</div>
+          <div class="card-sub">${e.g||'Sin gremio'}${e.c?' · '+e.c:''}</div>
+        </div>
+        <span class="badge" style="background:${bg};color:${col}">${d}/${TOTAL}</span>
+        <div class="dot" style="background:${col}"></div>
+        <span class="chevron" style="${e.open?'transform:rotate(180deg)':''}">▼</span>
+      </div>
+      ${e.open?`<div class="card-body">
+        <div class="bar-wrap"><div class="bar" style="width:${p}%;background:${col}"></div></div>
+        ${docsHTML}
+        <div class="actions">
+          <button onclick="event.stopPropagation();abrirModal('${e.id}')">✎ Editar</button>
+          <button class="danger" style="margin-left:auto" onclick="event.stopPropagation();del('${e.id}')">✕ Eliminar</button>
+        </div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+
+  const tot=data.length;
+  const ok=data.filter(e=>pct(e)===100).length;
+  const inc=data.filter(e=>{const p=pct(e);return p>0&&p<100;}).length;
+  const td=data.reduce((a,e)=>a+done(e),0);
+  document.getElementById('sn-total').textContent=tot;
+  document.getElementById('sn-ok').textContent=ok;
+  document.getElementById('sn-inc').textContent=inc;
+  document.getElementById('sn-pct').textContent=Math.round(td/(tot*TOTAL)*100)+'%';
+}
+
+load();
+</script>
+</body>
+</html>
