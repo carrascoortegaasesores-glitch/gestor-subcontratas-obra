@@ -450,6 +450,27 @@ function selProv(id){
 }
 
 function guardarProveedorEnObra(){
+  const editSubId = document.getElementById('modal-prov').dataset.editSubId;
+
+  // MODO EDICIÓN
+  if(editSubId){
+    const obra = db.obras.find(x=>x.id===obraActual);
+    const sub = obra.subcontratas.find(s=>s.id===editSubId);
+    const prov = db.proveedores.find(p=>p.id===sub.provId);
+    if(prov && tabActual==='nuevo'){
+      prov.nombre = document.getElementById('np-nombre').value.trim()||prov.nombre;
+      prov.gremio = document.getElementById('np-gremio').value.trim();
+      prov.contacto = document.getElementById('np-contacto').value.trim();
+      prov.email = document.getElementById('np-email').value.trim();
+    }
+    const fa = document.getElementById('prov-fecha-alta').value;
+    if(fa) sub.fechaAlta = fa;
+    delete document.getElementById('modal-prov').dataset.editSubId;
+    guardarDB(); cerrarModales(); renderMain(); toast('Datos actualizados ✓');
+    return;
+  }
+
+  // MODO ALTA NUEVA
   const obra = db.obras.find(x=>x.id===obraActual);
   if(!obra) return;
   const fechaAlta = document.getElementById('prov-fecha-alta').value;
@@ -457,7 +478,7 @@ function guardarProveedorEnObra(){
 
   let provId;
   if(tabActual==='existente'){
-    if(!provSelId){ toast('Selecciona una empresa'); return; }
+    if(!provSelId){ toast('Selecciona una empresa de la lista'); return; }
     provId = provSelId;
   } else {
     const nombre = document.getElementById('np-nombre').value.trim();
@@ -475,8 +496,6 @@ function guardarProveedorEnObra(){
     provId = nuevo.id;
   }
 
-  // Añadir a la obra
-  const ci = obra.subcontratas.length % PAL.length;
   obra.subcontratas.push({
     id: ''+Date.now()+'x',
     provId,
@@ -794,27 +813,6 @@ function editarProv(subId){
   document.getElementById('modal-prov').classList.add('on');
 }
 
-// Sobrescribir guardarProveedorEnObra para modo edición
-const _guardar = guardarProveedorEnObra;
-function guardarProveedorEnObra(){
-  const editSubId = document.getElementById('modal-prov').dataset.editSubId;
-  if(editSubId){
-    const obra = db.obras.find(x=>x.id===obraActual);
-    const sub = obra.subcontratas.find(s=>s.id===editSubId);
-    const prov = db.proveedores.find(p=>p.id===sub.provId);
-    if(prov && tabActual==='nuevo'){
-      prov.nombre = document.getElementById('np-nombre').value.trim()||prov.nombre;
-      prov.gremio = document.getElementById('np-gremio').value.trim();
-      prov.contacto = document.getElementById('np-contacto').value.trim();
-      prov.email = document.getElementById('np-email').value.trim();
-    }
-    sub.fechaAlta = document.getElementById('prov-fecha-alta').value||sub.fechaAlta;
-    delete document.getElementById('modal-prov').dataset.editSubId;
-    guardarDB(); cerrarModales(); renderMain(); toast('Datos actualizados ✓');
-    return;
-  }
-  _guardar();
-}
 
 // ============================================================
 // UTILS
