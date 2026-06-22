@@ -6,97 +6,224 @@
 <title>Gestor de Subcontratas de Obra</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
-.header{background:#fff;border-bottom:1px solid #e5e5e0;padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
-.header h1{font-size:16px;font-weight:600;flex:1}
-.header span{font-size:12px;color:#888}
-.container{max-width:780px;margin:0 auto;padding:20px 16px}
-button{cursor:pointer;font-family:inherit;font-size:13px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;padding:7px 14px;display:inline-flex;align-items:center;gap:5px;transition:background .1s}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh;font-size:14px}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit;font-size:13px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;padding:7px 13px;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
 button:hover{background:#f0f0ec}
 button.primary{background:#1a1a1a;color:#fff;border-color:transparent}
 button.primary:hover{background:#333}
 button.danger{color:#a32d2d;border-color:#f0c0c0}
 button.danger:hover{background:#fff5f5}
-input,select{font-family:inherit;font-size:13px;width:100%;padding:8px 11px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;outline:none}
-input:focus,select:focus{border-color:#888}
+button.sm{font-size:12px;padding:5px 10px}
+input,select,textarea{font-family:inherit;font-size:13px;width:100%;padding:8px 11px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#666}
 label{font-size:12px;color:#666;display:block;margin-bottom:4px}
+
+/* LAYOUT */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:#fff;border-right:1px solid #e5e5e0;display:flex;flex-direction:column;z-index:20}
+.sidebar-head{padding:16px;border-bottom:1px solid #e5e5e0}
+.sidebar-head h1{font-size:14px;font-weight:700;margin-bottom:12px}
+.obra-list{flex:1;overflow-y:auto;padding:8px}
+.obra-item{padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:#555;display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.obra-item:hover{background:#f5f5f3}
+.obra-item.active{background:#1a1a1a;color:#fff;font-weight:500}
+.obra-item .obra-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0}
+.obra-item.active .obra-dot{background:#4ade80}
+.sidebar-foot{padding:12px;border-top:1px solid #e5e5e0}
+.main{margin-left:240px;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid #e5e5e0;padding:13px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.topbar h2{font-size:15px;font-weight:600;flex:1}
+.container{max-width:800px;margin:0 auto;padding:20px 20px}
+
+/* STATS */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
 .stat{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 14px}
-.stat-n{font-size:22px;font-weight:600}
+.stat-n{font-size:22px;font-weight:700}
 .stat-l{font-size:11px;color:#888;margin-top:2px}
+
+/* ALERTA MES */
+.alert-mes{background:#FFF8E6;border:1px solid #F5C842;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px}
+.alert-mes .alert-icon{font-size:20px}
+
+/* CARDS */
 .card{background:#fff;border:1px solid #e5e5e0;border-radius:12px;margin-bottom:10px;overflow:hidden}
 .card-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none}
 .card-head:hover{background:#fafaf8}
-.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
 .card-info{flex:1;min-width:0}
 .card-name{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .card-sub{font-size:12px;color:#888;margin-top:1px}
 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px}
-.chevron{font-size:12px;color:#aaa;transition:transform .2s}
+.chevron{font-size:11px;color:#aaa;transition:transform .2s;flex-shrink:0}
 .card-body{padding:0 16px 16px;border-top:1px solid #f0f0ec}
 .bar-wrap{height:4px;background:#f0f0ec;border-radius:2px;margin:14px 0}
 .bar{height:4px;border-radius:2px;transition:width .4s}
-.sec-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 7px}
-.doc{display:flex;align-items:flex-start;gap:9px;padding:6px 6px;border-radius:6px;cursor:pointer}
+.sec-title{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 7px;display:flex;align-items:center;gap:6px}
+.doc{display:flex;align-items:flex-start;gap:9px;padding:5px 6px;border-radius:6px;cursor:pointer}
 .doc:hover{background:#f8f8f5}
 .cb{width:17px;height:17px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s}
 .cb.on{background:#1D9E75;border-color:#1D9E75}
 .doc-label{font-size:13px;color:#555;line-height:1.5}
 .doc.on .doc-label{text-decoration:line-through;color:#bbb}
 .tm{font-size:10px;padding:2px 6px;background:#fef3e2;color:#8a5700;border-radius:8px;margin-left:4px;font-weight:500}
-.actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0ec}
+.trim{font-size:10px;padding:2px 6px;background:#e8f4fd;color:#185FA5;border-radius:8px;margin-left:4px;font-weight:500}
+.card-actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0ec;flex-wrap:wrap}
+
+/* MENSUAL GRID */
+.mes-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.mes-btn{font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid #e0e0da;background:#f8f8f5;color:#666;cursor:pointer;font-family:inherit;transition:all .15s}
+.mes-btn.on{background:#1D9E75;border-color:#1D9E75;color:#fff;font-weight:600}
+.mes-btn.pendiente{background:#fff0f0;border-color:#f0c0c0;color:#a32d2d}
+.mes-section{background:#fafaf8;border-radius:8px;padding:10px 12px;margin-top:6px}
+.mes-doc-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f0f0ec}
+.mes-doc-row:last-child{border-bottom:none}
+.mes-doc-label{font-size:12px;color:#555;flex:1}
+.mes-months{display:flex;gap:4px;flex-wrap:wrap}
+.mes-cb{width:28px;height:22px;border-radius:4px;border:1px solid #e0e0da;background:#f5f5f3;font-size:10px;color:#888;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0}
+.mes-cb.on{background:#1D9E75;border-color:#1D9E75;color:#fff;font-weight:700}
+.mes-cb.pend{background:#fff0f0;border-color:#f5c0c0;color:#c04040}
+.mes-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.mes-header span{font-size:11px;color:#aaa}
+
+/* FECHA ALTA */
+.fecha-alta{font-size:11px;color:#aaa;margin-top:2px}
+.fecha-alta span{color:#1D9E75;font-weight:500}
+
+/* EMPTY */
 .empty{text-align:center;padding:3rem 1rem;color:#aaa}
 .empty-icon{font-size:40px;margin-bottom:12px}
-.empty p{font-size:14px;line-height:1.7}
+.empty p{font-size:14px;line-height:1.8}
+
+/* OVERLAY / MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center;padding:20px}
 .overlay.on{display:flex}
-.modal{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,0.18)}
-.modal h2{font-size:15px;font-weight:600;margin-bottom:16px}
+.modal{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,0.18);max-height:90vh;overflow-y:auto}
+.modal h2{font-size:15px;font-weight:700;margin-bottom:16px}
 .field{margin-bottom:13px}
-.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:13px;padding:10px 18px;border-radius:20px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.proveedor-search{margin-bottom:10px}
+.prov-sugg{background:#f8f8f5;border:1px solid #e5e5e0;border-radius:8px;max-height:150px;overflow-y:auto;margin-top:4px;display:none}
+.prov-sugg.on{display:block}
+.prov-sugg-item{padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0ec}
+.prov-sugg-item:last-child{border-bottom:none}
+.prov-sugg-item:hover{background:#f0f0ec}
+.prov-sugg-item .prov-g{font-size:11px;color:#aaa}
+.tab-bar{display:flex;border-bottom:1px solid #e5e5e0;margin-bottom:16px}
+.tab{padding:8px 14px;font-size:13px;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:#1a1a1a;font-weight:600;border-bottom-color:#1a1a1a}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:13px;padding:10px 20px;border-radius:20px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
-.note{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 16px;font-size:13px;color:#888;margin-top:12px;line-height:1.6}
-@media(max-width:500px){
+
+/* PANTALLA INICIO */
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;color:#aaa}
+.welcome h3{font-size:16px;font-weight:600;color:#555;margin-bottom:8px}
+.welcome p{font-size:13px;line-height:1.7;max-width:320px;margin-bottom:20px}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  .sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap}
+  .main{margin-left:0}
   .stats{grid-template-columns:repeat(2,1fr)}
-  .header h1{font-size:14px}
 }
+.note{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 16px;font-size:12px;color:#888;margin-top:12px;line-height:1.7}
+
+/* OBRAS VACÍAS */
+.no-obra{display:flex;align-items:center;justify-content:center;min-height:80vh}
+.no-obra-inner{text-align:center;max-width:320px}
+.no-obra-inner h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.no-obra-inner p{font-size:13px;color:#888;line-height:1.7;margin-bottom:20px}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>📋 Gestor de Subcontratas</h1>
-  <span id="obra-label">Obra</span>
-  <button class="primary" onclick="abrirModal(null)">+ Nueva empresa</button>
-</div>
-
-<div class="container">
-  <div class="stats">
-    <div class="stat"><div class="stat-n" id="sn-total">0</div><div class="stat-l">Empresas</div></div>
-    <div class="stat"><div class="stat-n" id="sn-ok" style="color:#1D9E75">0</div><div class="stat-l">Al día</div></div>
-    <div class="stat"><div class="stat-n" id="sn-inc" style="color:#EF9F27">0</div><div class="stat-l">Incompletas</div></div>
-    <div class="stat"><div class="stat-n" id="sn-pct">—</div><div class="stat-l">Completado</div></div>
+<!-- SIDEBAR OBRAS -->
+<div class="sidebar">
+  <div class="sidebar-head">
+    <h1>📋 Subcontratas</h1>
+    <button class="primary" style="width:100%;justify-content:center" onclick="abrirModalObra(null)">+ Nueva obra</button>
   </div>
-
-  <div id="lista"></div>
-
-  <div class="note">
-    💡 Los datos se guardan automáticamente en este navegador. Para revisar un documento escaneado, súbelo en el chat de Claude indicando a qué empresa pertenece.
+  <div class="obra-list" id="obra-list"></div>
+  <div class="sidebar-foot">
+    <button style="width:100%;justify-content:center;font-size:12px;color:#888" onclick="abrirModalProveedores()">👷 Base de proveedores</button>
   </div>
 </div>
 
-<div class="overlay" id="overlay">
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <h2 id="obra-titulo">Selecciona una obra</h2>
+    <div id="topbar-actions"></div>
+  </div>
+  <div class="container" id="main-content">
+    <div class="no-obra">
+      <div class="no-obra-inner">
+        <div style="font-size:48px;margin-bottom:12px">🏗️</div>
+        <h3>Ninguna obra seleccionada</h3>
+        <p>Crea tu primera obra en el panel izquierdo para empezar a gestionar las subcontratas.</p>
+        <button class="primary" onclick="abrirModalObra(null)">+ Crear primera obra</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OBRA -->
+<div class="overlay" id="modal-obra">
   <div class="modal" onclick="event.stopPropagation()">
-    <h2 id="modal-h">Nueva subcontrata</h2>
-    <div class="field"><label>Nombre de la empresa *</label><input id="fn" placeholder="Ej: Instalaciones García S.L."/></div>
-    <div class="field"><label>Gremio / actividad</label><input id="fg" placeholder="Ej: Electricidad, Fontanería…"/></div>
-    <div class="field"><label>Persona de contacto</label><input id="fc" placeholder="Nombre y cargo"/></div>
-    <div class="field"><label>Email</label><input id="fe" type="email" placeholder="email@empresa.com"/></div>
+    <h2 id="modal-obra-h">Nueva obra</h2>
+    <div class="field"><label>Nombre de la obra *</label><input id="obra-n" placeholder="Ej: Edificio Calle Mayor 12"/></div>
+    <div class="field"><label>Dirección</label><input id="obra-dir" placeholder="Calle, número, localidad"/></div>
+    <div class="field"><label>Promotor / Cliente</label><input id="obra-prom" placeholder="Nombre del promotor"/></div>
+    <div class="field"><label>Fecha de inicio</label><input id="obra-fecha" type="date"/></div>
     <div class="mfoot">
-      <button onclick="cerrarModal()">Cancelar</button>
-      <button class="primary" onclick="guardar()">Guardar</button>
+      <button onclick="cerrarModales()">Cancelar</button>
+      <button class="primary" onclick="guardarObra()">Guardar obra</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AÑADIR PROVEEDOR A OBRA -->
+<div class="overlay" id="modal-prov">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 id="modal-prov-h">Añadir subcontrata</h2>
+    <div class="tab-bar">
+      <div class="tab active" id="tab-existente" onclick="switchTab('existente')">Desde base de datos</div>
+      <div class="tab" id="tab-nuevo" onclick="switchTab('nuevo')">Nueva empresa</div>
+    </div>
+    <div id="panel-existente">
+      <div class="field">
+        <label>Buscar empresa</label>
+        <input id="prov-search" placeholder="Escribe el nombre…" oninput="filtrarProveedores()" autocomplete="off"/>
+        <div class="prov-sugg" id="prov-sugg"></div>
+      </div>
+      <div id="prov-seleccionado" style="display:none;background:#f0faf5;border:1px solid #1D9E75;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px">
+        <strong id="prov-sel-nombre"></strong><br><span id="prov-sel-gremio" style="color:#888"></span>
+      </div>
+    </div>
+    <div id="panel-nuevo" style="display:none">
+      <div class="field"><label>Nombre de la empresa *</label><input id="np-nombre" placeholder="Ej: Instalaciones García S.L."/></div>
+      <div class="field"><label>Gremio / actividad</label><input id="np-gremio" placeholder="Electricidad, Fontanería…"/></div>
+      <div class="field"><label>Persona de contacto</label><input id="np-contacto" placeholder="Nombre y cargo"/></div>
+      <div class="field"><label>Email</label><input id="np-email" type="email" placeholder="email@empresa.com"/></div>
+    </div>
+    <div class="field"><label>Fecha de alta en esta obra *</label><input id="prov-fecha-alta" type="date"/></div>
+    <div class="mfoot">
+      <button onclick="cerrarModales()">Cancelar</button>
+      <button class="primary" onclick="guardarProveedorEnObra()">Añadir a la obra</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BASE DE PROVEEDORES -->
+<div class="overlay" id="modal-base-prov">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2>Base de proveedores</h2>
+    <p style="font-size:12px;color:#888;margin-bottom:14px">Empresas guardadas. Se añaden automáticamente al dar de alta una nueva subcontrata en cualquier obra.</p>
+    <div id="base-prov-list" style="max-height:320px;overflow-y:auto"></div>
+    <div class="mfoot">
+      <button onclick="cerrarModales()">Cerrar</button>
     </div>
   </div>
 </div>
@@ -104,214 +231,628 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 <div class="toast" id="toast"></div>
 
 <script>
-const SECS = [
-  {t:"1. Documentación de empresa", docs:[
-    ["Escritura de constitución y poderes del representante legal",""],
-    ["CIF de la empresa",""],
-    ["Alta en el IAE (epígrafe correspondiente)",""],
-    ["Certificado corriente de pago AEAT","trim"],
-    ["Certificado corriente de pago TGSS","mens"],
-    ["Póliza de Responsabilidad Civil vigente y último recibo",""],
-    ["Póliza Seguro de Convenio (accidentes/vida) y último recibo",""],
-    ["Adhesión a la Mutua Colaboradora con la Seguridad Social",""],
-    ["REA (Registro de Empresas Acreditadas) en vigor",""],
-    ["Evaluación de Riesgos y Planificación Actividad Preventiva",""],
-    ["Modalidad preventiva acreditada (SPP, SPA o mancomunado)",""],
-    ["Plan de Seguridad y Salud / adhesión al plan del contratista",""],
-    ["Certificado aprobación PSS por Coordinación de Seguridad",""]
-  ]},
-  {t:"2. Documentación de trabajadores", docs:[
-    ["DNI / NIE en vigor",""],
-    ["Contrato de trabajo en vigor y categoría profesional",""],
-    ["Certificado de aptitud médica vigente",""],
-    ["Ficha de entrega de EPIs firmada por el trabajador",""],
-    ["Formación PRL mínimo 20 h (Convenio Construcción)",""],
-    ["Formación específica trabajos especiales (si procede)",""],
-    ["Acreditación Recurso Preventivo (si aplica)",""],
-    ["Tarjeta Profesional de la Construcción (TPC) en vigor",""],
-    ["Acuse recibo Art. 18 LPRL — información riesgos de la obra",""],
-    ["Acuse recibo Art. 19 LPRL — formación e instrucciones de seguridad",""]
-  ]},
-  {t:"3. Documentación mensual", docs:[
-    ["Certificado TGSS corriente de pago — mes en curso","mens"],
-    ["RNT (Relación Nominal de Trabajadores) mes anterior","mens"],
-    ["RLC (Recibo de Liquidación de Cotizaciones) mes anterior","mens"],
-    ["Justificante pago cotizaciones SS (ITA) mes anterior","mens"],
-    ["Partes de presencia — trabajadores en obra mes anterior","mens"],
-    ["Justificante de pago de salarios mes anterior","mens"],
-    ["Acta de charla / reunión de seguridad","mens"],
-    ["Registro de inspecciones de equipos y maquinaria","mens"]
-  ]},
-  {t:"4. Maquinaria y equipos", docs:[
-    ["Ficha técnica, marcado CE y declaración de conformidad CE",""],
-    ["Certificado última revisión / ITV y seguro del equipo vigente",""],
-    ["Certificado de operador / carnet del trabajador que lo maneja",""]
-  ]}
+// ============================================================
+// DATOS
+// ============================================================
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const HOY = new Date();
+const MES_ACTUAL = HOY.getMonth(); // 0-11
+const ANO_ACTUAL = HOY.getFullYear();
+const MES_LABEL = MESES[MES_ACTUAL] + ' ' + ANO_ACTUAL;
+
+const DOCS_EMPRESA = [
+  "Escritura de constitución y poderes del representante legal",
+  "CIF de la empresa",
+  "Alta en el IAE (epígrafe correspondiente)",
+  "Póliza de Responsabilidad Civil vigente y último recibo",
+  "Póliza Seguro de Convenio (accidentes/vida) y último recibo",
+  "Adhesión a la Mutua Colaboradora con la Seguridad Social",
+  "REA (Registro de Empresas Acreditadas) en vigor",
+  "Evaluación de Riesgos y Planificación Actividad Preventiva",
+  "Modalidad preventiva acreditada (SPP, SPA o mancomunado)",
+  "Plan de Seguridad y Salud / adhesión al plan del contratista",
+  "Certificado aprobación PSS por Coordinación de Seguridad"
 ];
 
-const TOTAL = SECS.reduce((a,s)=>a+s.docs.length,0);
-const PAL = [
-  ['#185FA5','#ddeeff'],['#1D9E75','#d4f5ea'],['#993C1D','#fce8e0'],
-  ['#534AB7','#eceafc'],['#3B6D11','#e4f2d4'],['#BA7517','#fef3d4'],
-  ['#993556','#fce8f0']
+const DOCS_TRABAJADORES = [
+  "DNI / NIE en vigor",
+  "Contrato de trabajo en vigor y categoría profesional",
+  "Certificado de aptitud médica vigente",
+  "Ficha de entrega de EPIs firmada por el trabajador",
+  "Formación PRL mínimo 20 h (Convenio Construcción)",
+  "Formación específica trabajos especiales (si procede)",
+  "Acreditación Recurso Preventivo (si aplica)",
+  "Tarjeta Profesional de la Construcción (TPC) en vigor",
+  "Acuse recibo Art. 18 LPRL — información riesgos de la obra",
+  "Acuse recibo Art. 19 LPRL — formación e instrucciones de seguridad"
 ];
 
-let data = [];
-let editId = null;
+const DOCS_MENSUAL = [
+  "Certificado TGSS corriente de pago — mes en curso",
+  "Certificado corriente de pago AEAT",
+  "RNT (Relación Nominal de Trabajadores) mes anterior",
+  "RLC (Recibo de Liquidación de Cotizaciones) mes anterior",
+  "Justificante pago cotizaciones SS (ITA) mes anterior",
+  "Partes de presencia — trabajadores en obra mes anterior",
+  "Justificante de pago de salarios mes anterior",
+  "Acta de charla / reunión de seguridad",
+  "Registro de inspecciones de equipos y maquinaria"
+];
 
-function load(){
-  try{ const s=localStorage.getItem('sub_obra_v1'); if(s) data=JSON.parse(s); }catch(e){ data=[]; }
-  paint();
+const DOCS_MAQUINARIA = [
+  "Ficha técnica, marcado CE y declaración de conformidad CE",
+  "Certificado última revisión / ITV y seguro del equipo vigente",
+  "Certificado de operador / carnet del trabajador que lo maneja"
+];
+
+const TOTAL_FIJOS = DOCS_EMPRESA.length + DOCS_TRABAJADORES.length + DOCS_MAQUINARIA.length;
+
+let db = {obras:[], proveedores:[]};
+let obraActual = null;
+let tabActual = 'existente';
+let provSelId = null;
+
+// ============================================================
+// PERSISTENCIA
+// ============================================================
+function cargar(){
+  try{
+    const s = localStorage.getItem('gestor_obras_v1');
+    if(s) db = JSON.parse(s);
+  } catch(e){ db = {obras:[], proveedores:[]}; }
+  // Migración: asegurar estructura
+  if(!db.obras) db.obras = [];
+  if(!db.proveedores) db.proveedores = [];
+}
+function guardarDB(){ localStorage.setItem('gestor_obras_v1', JSON.stringify(db)); }
+
+// ============================================================
+// OBRAS
+// ============================================================
+function abrirModalObra(id){
+  if(id){
+    const o = db.obras.find(x=>x.id===id);
+    document.getElementById('obra-n').value = o.nombre;
+    document.getElementById('obra-dir').value = o.direccion||'';
+    document.getElementById('obra-prom').value = o.promotor||'';
+    document.getElementById('obra-fecha').value = o.fecha||'';
+    document.getElementById('modal-obra-h').textContent = 'Editar obra';
+    document.getElementById('modal-obra').dataset.editId = id;
+  } else {
+    ['obra-n','obra-dir','obra-prom','obra-fecha'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('modal-obra-h').textContent = 'Nueva obra';
+    delete document.getElementById('modal-obra').dataset.editId;
+  }
+  document.getElementById('modal-obra').classList.add('on');
+  setTimeout(()=>document.getElementById('obra-n').focus(),80);
 }
 
-function save(){
-  try{ localStorage.setItem('sub_obra_v1', JSON.stringify(data)); }catch(e){}
+function guardarObra(){
+  const n = document.getElementById('obra-n').value.trim();
+  if(!n){ document.getElementById('obra-n').focus(); return; }
+  const editId = document.getElementById('modal-obra').dataset.editId;
+  if(editId){
+    const o = db.obras.find(x=>x.id===editId);
+    o.nombre = n;
+    o.direccion = document.getElementById('obra-dir').value.trim();
+    o.promotor = document.getElementById('obra-prom').value.trim();
+    o.fecha = document.getElementById('obra-fecha').value;
+    toast('Obra actualizada ✓');
+  } else {
+    const nueva = {
+      id: ''+Date.now(),
+      nombre: n,
+      direccion: document.getElementById('obra-dir').value.trim(),
+      promotor: document.getElementById('obra-prom').value.trim(),
+      fecha: document.getElementById('obra-fecha').value,
+      subcontratas: []
+    };
+    db.obras.push(nueva);
+    obraActual = nueva.id;
+    toast('Obra creada ✓');
+  }
+  guardarDB();
+  cerrarModales();
+  renderSidebar();
+  renderMain();
 }
 
-function initChecks(){
+function renderSidebar(){
+  const list = document.getElementById('obra-list');
+  if(!db.obras.length){
+    list.innerHTML = '<div style="padding:12px;font-size:12px;color:#aaa;text-align:center">Sin obras</div>';
+    return;
+  }
+  list.innerHTML = db.obras.map(o=>`
+    <div class="obra-item ${obraActual===o.id?'active':''}" onclick="selObra('${o.id}')">
+      <div class="obra-dot"></div>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.nombre}</span>
+    </div>
+  `).join('');
+}
+
+function selObra(id){
+  obraActual = id;
+  renderSidebar();
+  renderMain();
+}
+
+// ============================================================
+// PROVEEDORES EN OBRA
+// ============================================================
+const PAL=[['#185FA5','#ddeeff'],['#1D9E75','#d4f5ea'],['#993C1D','#fce8e0'],
+  ['#534AB7','#eceafc'],['#3B6D11','#e4f2d4'],['#BA7517','#fef3d4'],['#993556','#fce8f0']];
+
+function initChecksFijos(){
   const c={};
-  SECS.forEach(s=>s.docs.forEach(([d])=>c[d]=false));
+  DOCS_EMPRESA.forEach(d=>c[d]=false);
+  DOCS_TRABAJADORES.forEach(d=>c[d]=false);
+  DOCS_MAQUINARIA.forEach(d=>c[d]=false);
   return c;
 }
 
-function pct(e){ return Math.round(Object.values(e.checks).filter(Boolean).length/TOTAL*100); }
-function done(e){ return Object.values(e.checks).filter(Boolean).length; }
+function initChecksMensual(){
+  // {docName: {2024_0: true, 2024_1: false, ...}}
+  const c={};
+  DOCS_MENSUAL.forEach(d=>c[d]={});
+  return c;
+}
 
-function colores(p){
-  if(p===100) return ['#1D9E75','#d4f5ea'];
-  if(p>0)     return ['#EF9F27','#fef3d4'];
+function mesKey(ano, mes){ return ano+'_'+mes; }
+
+function abrirModalProv(){
+  tabActual = 'existente';
+  provSelId = null;
+  ['np-nombre','np-gremio','np-contacto','np-email','prov-search'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('prov-seleccionado').style.display='none';
+  document.getElementById('prov-sugg').classList.remove('on');
+  document.getElementById('prov-fecha-alta').value = new Date().toISOString().split('T')[0];
+  document.getElementById('modal-prov-h').textContent = 'Añadir subcontrata';
+  switchTab('existente');
+  document.getElementById('modal-prov').classList.add('on');
+  setTimeout(()=>document.getElementById('prov-search').focus(),80);
+}
+
+function switchTab(tab){
+  tabActual = tab;
+  document.getElementById('tab-existente').className = 'tab'+(tab==='existente'?' active':'');
+  document.getElementById('tab-nuevo').className = 'tab'+(tab==='nuevo'?' active':'');
+  document.getElementById('panel-existente').style.display = tab==='existente'?'block':'none';
+  document.getElementById('panel-nuevo').style.display = tab==='nuevo'?'block':'none';
+}
+
+function filtrarProveedores(){
+  const q = document.getElementById('prov-search').value.trim().toLowerCase();
+  const obra = db.obras.find(x=>x.id===obraActual);
+  const yaEnObra = new Set((obra?.subcontratas||[]).map(s=>s.provId));
+  const filtrados = db.proveedores.filter(p=>
+    !yaEnObra.has(p.id) &&
+    (p.nombre.toLowerCase().includes(q) || (p.gremio||'').toLowerCase().includes(q))
+  );
+  const sugg = document.getElementById('prov-sugg');
+  if(!filtrados.length && !q){ sugg.classList.remove('on'); return; }
+  sugg.classList.add('on');
+  sugg.innerHTML = filtrados.length
+    ? filtrados.map(p=>`<div class="prov-sugg-item" onclick="selProv('${p.id}')">
+        ${p.nombre}<div class="prov-g">${p.gremio||''}</div>
+      </div>`).join('')
+    : '<div class="prov-sugg-item" style="color:#aaa">Sin resultados</div>';
+}
+
+function selProv(id){
+  provSelId = id;
+  const p = db.proveedores.find(x=>x.id===id);
+  document.getElementById('prov-sel-nombre').textContent = p.nombre;
+  document.getElementById('prov-sel-gremio').textContent = p.gremio||'';
+  document.getElementById('prov-seleccionado').style.display = 'block';
+  document.getElementById('prov-search').value = p.nombre;
+  document.getElementById('prov-sugg').classList.remove('on');
+}
+
+function guardarProveedorEnObra(){
+  const obra = db.obras.find(x=>x.id===obraActual);
+  if(!obra) return;
+  const fechaAlta = document.getElementById('prov-fecha-alta').value;
+  if(!fechaAlta){ document.getElementById('prov-fecha-alta').focus(); return; }
+
+  let provId;
+  if(tabActual==='existente'){
+    if(!provSelId){ toast('Selecciona una empresa'); return; }
+    provId = provSelId;
+  } else {
+    const nombre = document.getElementById('np-nombre').value.trim();
+    if(!nombre){ document.getElementById('np-nombre').focus(); return; }
+    const ci = db.proveedores.length % PAL.length;
+    const nuevo = {
+      id: ''+Date.now(),
+      nombre,
+      gremio: document.getElementById('np-gremio').value.trim(),
+      contacto: document.getElementById('np-contacto').value.trim(),
+      email: document.getElementById('np-email').value.trim(),
+      col: PAL[ci][0], bg: PAL[ci][1]
+    };
+    db.proveedores.push(nuevo);
+    provId = nuevo.id;
+  }
+
+  // Añadir a la obra
+  const ci = obra.subcontratas.length % PAL.length;
+  obra.subcontratas.push({
+    id: ''+Date.now()+'x',
+    provId,
+    fechaAlta,
+    checksFijos: initChecksFijos(),
+    checksMensual: initChecksMensual(),
+    open: true
+  });
+  guardarDB();
+  cerrarModales();
+  renderMain();
+  toast('Subcontrata añadida ✓');
+}
+
+function eliminarSubcontrata(subId){
+  if(!confirm('¿Eliminar esta subcontrata de la obra?')) return;
+  const obra = db.obras.find(x=>x.id===obraActual);
+  obra.subcontratas = obra.subcontratas.filter(s=>s.id!==subId);
+  guardarDB();
+  renderMain();
+  toast('Subcontrata eliminada');
+}
+
+function toggleFijo(subId, doc){
+  const obra = db.obras.find(x=>x.id===obraActual);
+  const sub = obra.subcontratas.find(s=>s.id===subId);
+  sub.checksFijos[doc] = !sub.checksFijos[doc];
+  guardarDB();
+  renderMain();
+}
+
+function toggleMensual(subId, doc, ano, mes){
+  const obra = db.obras.find(x=>x.id===obraActual);
+  const sub = obra.subcontratas.find(s=>s.id===subId);
+  if(!sub.checksMensual[doc]) sub.checksMensual[doc]={};
+  const key = mesKey(ano,mes);
+  sub.checksMensual[doc][key] = !sub.checksMensual[doc][key];
+  guardarDB();
+  renderMain();
+}
+
+function toggleOpen(subId){
+  const obra = db.obras.find(x=>x.id===obraActual);
+  const sub = obra.subcontratas.find(s=>s.id===subId);
+  sub.open = !sub.open;
+  guardarDB();
+  renderMain();
+}
+
+// ============================================================
+// ALERTA MES
+// ============================================================
+function hayPendientesMesActual(obra){
+  if(!obra) return false;
+  return obra.subcontratas.some(sub=>{
+    return DOCS_MENSUAL.some(doc=>{
+      const key = mesKey(ANO_ACTUAL, MES_ACTUAL);
+      return !sub.checksMensual[doc]?.[key];
+    });
+  });
+}
+
+function alertaMes(obra){
+  const hoy = new Date();
+  const ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0).getDate();
+  const diasRestantes = ultimoDia - hoy.getDate();
+  const hayPend = hayPendientesMesActual(obra);
+  if(!hayPend) return '';
+  let msg = '';
+  if(diasRestantes <= 5){
+    msg = `⚠️ Quedan ${diasRestantes} días para acabar ${MES_LABEL}. Hay documentación mensual pendiente de recibir.`;
+  } else {
+    msg = `📅 Documentación mensual de ${MES_LABEL} pendiente en algunas subcontratas.`;
+  }
+  return `<div class="alert-mes">
+    <div class="alert-icon">🔔</div>
+    <div><strong>${msg}</strong></div>
+  </div>`;
+}
+
+// ============================================================
+// ESTADÍSTICAS
+// ============================================================
+function calcStats(sub){
+  const fijos = Object.values(sub.checksFijos).filter(Boolean).length;
+  const mesKey_ = mesKey(ANO_ACTUAL, MES_ACTUAL);
+  const mensualOk = DOCS_MENSUAL.filter(d=>sub.checksMensual[d]?.[mesKey_]).length;
+  const totalMensualMes = DOCS_MENSUAL.length;
+  return {fijos, totalFijos: TOTAL_FIJOS, mensualOk, totalMensualMes};
+}
+
+function colores(pct){
+  if(pct===100) return ['#1D9E75','#d4f5ea'];
+  if(pct>0)     return ['#EF9F27','#fef3d4'];
   return              ['#E24B4A','#fce8e8'];
 }
 
-function abrirModal(id){
-  editId=id;
-  if(id){
-    const e=data.find(x=>x.id===id);
-    document.getElementById('fn').value=e.n;
-    document.getElementById('fg').value=e.g||'';
-    document.getElementById('fc').value=e.c||'';
-    document.getElementById('fe').value=e.em||'';
-    document.getElementById('modal-h').textContent='Editar empresa';
-  } else {
-    ['fn','fg','fc','fe'].forEach(i=>document.getElementById(i).value='');
-    document.getElementById('modal-h').textContent='Nueva subcontrata';
+// ============================================================
+// RENDER MESES PARA CADA DOC MENSUAL
+// ============================================================
+function mesesDisponibles(sub){
+  // Desde mes de alta hasta mes actual
+  const fa = sub.fechaAlta ? new Date(sub.fechaAlta) : new Date();
+  const meses = [];
+  let a = fa.getFullYear(), m = fa.getMonth();
+  while(a < ANO_ACTUAL || (a===ANO_ACTUAL && m<=MES_ACTUAL)){
+    meses.push({ano:a, mes:m, label:MESES[m]+(a!==ANO_ACTUAL?' '+a:'')});
+    m++;
+    if(m>11){ m=0; a++; }
   }
-  document.getElementById('overlay').classList.add('on');
-  setTimeout(()=>document.getElementById('fn').focus(),80);
+  return meses;
 }
 
-function cerrarModal(){ document.getElementById('overlay').classList.remove('on'); }
-document.getElementById('overlay').addEventListener('click', cerrarModal);
-
-function guardar(){
-  const n=document.getElementById('fn').value.trim();
-  if(!n){ document.getElementById('fn').focus(); return; }
-  if(editId){
-    const e=data.find(x=>x.id===editId);
-    e.n=n; e.g=document.getElementById('fg').value.trim();
-    e.c=document.getElementById('fc').value.trim(); e.em=document.getElementById('fe').value.trim();
-    toast('Empresa actualizada ✓');
-  } else {
-    const ci=data.length%PAL.length;
-    data.push({
-      id:''+Date.now(), n, g:document.getElementById('fg').value.trim(),
-      c:document.getElementById('fc').value.trim(), em:document.getElementById('fe').value.trim(),
-      col:PAL[ci][0], bg:PAL[ci][1], checks:initChecks(), open:true
+function renderMensual(sub){
+  const meses = mesesDisponibles(sub);
+  if(!meses.length) return '';
+  let html = `<div class="mes-section">
+    <div class="mes-header">
+      <strong style="font-size:12px">Documentación mensual</strong>
+      <span>Marca cada mes cuando lo recibas</span>
+    </div>`;
+  DOCS_MENSUAL.forEach(doc=>{
+    html += `<div class="mes-doc-row">
+      <span class="mes-doc-label">${doc}</span>
+      <div class="mes-months">`;
+    meses.forEach(({ano,mes,label})=>{
+      const key = mesKey(ano,mes);
+      const on = sub.checksMensual[doc]?.[key];
+      const esMesActual = ano===ANO_ACTUAL && mes===MES_ACTUAL;
+      const cls = on?'on':esMesActual?'pend':'';
+      html += `<div class="mes-cb ${cls}" title="${label}" onclick="toggleMensual('${sub.id}',${JSON.stringify(doc)},${ano},${mes})">${label.substring(0,1)}</div>`;
     });
-    toast('Empresa dada de alta ✓');
+    html += `</div></div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+// ============================================================
+// RENDER MAIN
+// ============================================================
+function renderMain(){
+  const titulo = document.getElementById('obra-titulo');
+  const content = document.getElementById('main-content');
+  const actions = document.getElementById('topbar-actions');
+
+  if(!obraActual){
+    titulo.textContent = 'Selecciona una obra';
+    actions.innerHTML = '';
+    content.innerHTML = `<div class="no-obra">
+      <div class="no-obra-inner">
+        <div style="font-size:48px;margin-bottom:12px">🏗️</div>
+        <h3>Ninguna obra seleccionada</h3>
+        <p>Crea o selecciona una obra en el panel izquierdo.</p>
+        <button class="primary" onclick="abrirModalObra(null)">+ Crear obra</button>
+      </div>
+    </div>`;
+    return;
   }
-  cerrarModal(); save(); paint();
+
+  const obra = db.obras.find(x=>x.id===obraActual);
+  if(!obra){ obraActual=null; renderMain(); return; }
+
+  titulo.textContent = obra.nombre;
+  actions.innerHTML = `
+    <button class="sm" onclick="abrirModalObra('${obra.id}')">✎ Editar obra</button>
+    <button class="primary sm" onclick="abrirModalProv()">+ Añadir subcontrata</button>
+  `;
+
+  // Stats
+  const total = obra.subcontratas.length;
+  const mesKey_ = mesKey(ANO_ACTUAL, MES_ACTUAL);
+  const alDia = obra.subcontratas.filter(s=>{
+    const st = calcStats(s);
+    return st.fijos===st.totalFijos && st.mensualOk===st.totalMensualMes;
+  }).length;
+  const inc = obra.subcontratas.filter(s=>{
+    const st=calcStats(s); return st.fijos<st.totalFijos||(st.mensualOk<st.totalMensualMes);
+  }).length;
+  const totalDocs = total*(TOTAL_FIJOS+DOCS_MENSUAL.length);
+  const recibidos = obra.subcontratas.reduce((a,s)=>{
+    const st=calcStats(s); return a+st.fijos+st.mensualOk;
+  },0);
+  const pctTotal = totalDocs?Math.round(recibidos/totalDocs*100):0;
+
+  let html = `
+    ${alertaMes(obra)}
+    <div class="stats">
+      <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Subcontratas</div></div>
+      <div class="stat"><div class="stat-n" style="color:#1D9E75">${alDia}</div><div class="stat-l">Al día</div></div>
+      <div class="stat"><div class="stat-n" style="color:#EF9F27">${inc}</div><div class="stat-l">Incompletas</div></div>
+      <div class="stat"><div class="stat-n">${pctTotal}%</div><div class="stat-l">Completado</div></div>
+    </div>
+  `;
+
+  if(!obra.subcontratas.length){
+    html += `<div class="empty">
+      <div class="empty-icon">👷</div>
+      <p>Aún no hay subcontratas en esta obra.<br>Pulsa <strong>"+ Añadir subcontrata"</strong> para empezar.</p>
+    </div>`;
+  } else {
+    obra.subcontratas.forEach((sub,si)=>{
+      const prov = db.proveedores.find(p=>p.id===sub.provId)||{nombre:'Empresa eliminada',gremio:'',col:'#aaa',bg:'#f0f0f0'};
+      const st = calcStats(sub);
+      const pctFijo = Math.round(st.fijos/st.totalFijos*100);
+      const [col,bg] = colores(pctFijo);
+      const ci = si%PAL.length;
+      const ini = prov.nombre.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
+      const fa = sub.fechaAlta ? new Date(sub.fechaAlta).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) : '';
+      const mesOk = st.mensualOk === st.totalMensualMes;
+      const mesKey_ = mesKey(ANO_ACTUAL, MES_ACTUAL);
+
+      let bodyHtml = '';
+      if(sub.open){
+        // EMPRESA
+        bodyHtml += '<div class="sec-title">📁 Documentación de empresa</div>';
+        DOCS_EMPRESA.forEach(doc=>{
+          const on = sub.checksFijos[doc];
+          bodyHtml += `<div class="doc${on?' on':''}" onclick="toggleFijo('${sub.id}',${JSON.stringify(doc)})">
+            <div class="cb${on?' on':''}">${on?'✓':''}</div>
+            <span class="doc-label">${doc}</span>
+          </div>`;
+        });
+        // TRABAJADORES
+        bodyHtml += '<div class="sec-title">👷 Documentación de trabajadores</div>';
+        DOCS_TRABAJADORES.forEach(doc=>{
+          const on = sub.checksFijos[doc];
+          bodyHtml += `<div class="doc${on?' on':''}" onclick="toggleFijo('${sub.id}',${JSON.stringify(doc)})">
+            <div class="cb${on?' on':''}">${on?'✓':''}</div>
+            <span class="doc-label">${doc}</span>
+          </div>`;
+        });
+        // MAQUINARIA
+        bodyHtml += '<div class="sec-title">🏗️ Maquinaria y equipos</div>';
+        DOCS_MAQUINARIA.forEach(doc=>{
+          const on = sub.checksFijos[doc];
+          bodyHtml += `<div class="doc${on?' on':''}" onclick="toggleFijo('${sub.id}',${JSON.stringify(doc)})">
+            <div class="cb${on?' on':''}">${on?'✓':''}</div>
+            <span class="doc-label">${doc}</span>
+          </div>`;
+        });
+        // MENSUAL
+        bodyHtml += `<div class="sec-title">📅 Documentación mensual 
+          <span style="font-size:10px;padding:2px 7px;border-radius:8px;background:${mesOk?'#d4f5ea':'#fce8e8'};color:${mesOk?'#1D9E75':'#a32d2d'};font-weight:600">
+            ${MES_LABEL}: ${st.mensualOk}/${st.totalMensualMes}
+          </span>
+        </div>`;
+        bodyHtml += renderMensual(sub);
+        // ACCIONES
+        bodyHtml += `<div class="card-actions">
+          <button class="sm" onclick="event.stopPropagation();editarProv('${sub.id}')">✎ Editar empresa</button>
+          <button class="sm danger" style="margin-left:auto" onclick="event.stopPropagation();eliminarSubcontrata('${sub.id}')">✕ Quitar de obra</button>
+        </div>`;
+      }
+
+      html += `<div class="card">
+        <div class="card-head" onclick="toggleOpen('${sub.id}')">
+          <div class="avatar" style="background:${PAL[ci][1]};color:${PAL[ci][0]}">${ini}</div>
+          <div class="card-info">
+            <div class="card-name">${prov.nombre}</div>
+            <div class="card-sub">${prov.gremio||'Sin gremio'}${prov.contacto?' · '+prov.contacto:''}</div>
+            ${fa?`<div class="fecha-alta">Alta: <span>${fa}</span></div>`:''}
+          </div>
+          <span class="badge" style="background:${bg};color:${col}">${st.fijos}/${st.totalFijos}</span>
+          <div class="dot" style="background:${col}"></div>
+          <span class="chevron">${sub.open?'▲':'▼'}</span>
+        </div>
+        ${sub.open?`<div class="card-body">
+          <div class="bar-wrap"><div class="bar" style="width:${pctFijo}%;background:${col}"></div></div>
+          ${bodyHtml}
+        </div>`:''}
+      </div>`;
+    });
+  }
+
+  html += `<div class="note">💡 Los datos se guardan automáticamente en este navegador. Para revisar documentos escaneados, súbelos en el chat de Claude indicando a qué empresa y obra pertenecen.</div>`;
+  content.innerHTML = html;
 }
 
-function toggleDoc(id, doc){
-  const e=data.find(x=>x.id===id); if(!e) return;
-  e.checks[doc]=!e.checks[doc];
-  save(); paint();
+// ============================================================
+// BASE DE PROVEEDORES
+// ============================================================
+function abrirModalProveedores(){
+  const list = document.getElementById('base-prov-list');
+  if(!db.proveedores.length){
+    list.innerHTML = '<p style="font-size:13px;color:#aaa;text-align:center;padding:20px">Sin proveedores registrados aún</p>';
+  } else {
+    list.innerHTML = db.proveedores.map(p=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0ec">
+        <div>
+          <div style="font-size:13px;font-weight:600">${p.nombre}</div>
+          <div style="font-size:12px;color:#888">${p.gremio||''}${p.contacto?' · '+p.contacto:''}</div>
+          <div style="font-size:11px;color:#aaa">${p.email||''}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('modal-base-prov').classList.add('on');
 }
 
-function toggleOpen(id){
-  const e=data.find(x=>x.id===id); if(!e) return;
-  e.open=!e.open; save(); paint();
+function editarProv(subId){
+  // Editar empresa en base de datos desde dentro de una obra
+  const obra = db.obras.find(x=>x.id===obraActual);
+  const sub = obra.subcontratas.find(s=>s.id===subId);
+  const prov = db.proveedores.find(p=>p.id===sub.provId);
+  if(!prov) return;
+  switchTab('nuevo');
+  document.getElementById('np-nombre').value = prov.nombre;
+  document.getElementById('np-gremio').value = prov.gremio||'';
+  document.getElementById('np-contacto').value = prov.contacto||'';
+  document.getElementById('np-email').value = prov.email||'';
+  document.getElementById('prov-fecha-alta').value = sub.fechaAlta||'';
+  document.getElementById('modal-prov-h').textContent = 'Editar subcontrata';
+  document.getElementById('modal-prov').dataset.editSubId = subId;
+  document.getElementById('modal-prov').classList.add('on');
 }
 
-function del(id){
-  if(!confirm('¿Eliminar esta subcontrata y toda su documentación?')) return;
-  data=data.filter(x=>x.id!==id); save(); paint(); toast('Empresa eliminada');
+// Sobrescribir guardarProveedorEnObra para modo edición
+const _guardar = guardarProveedorEnObra;
+function guardarProveedorEnObra(){
+  const editSubId = document.getElementById('modal-prov').dataset.editSubId;
+  if(editSubId){
+    const obra = db.obras.find(x=>x.id===obraActual);
+    const sub = obra.subcontratas.find(s=>s.id===editSubId);
+    const prov = db.proveedores.find(p=>p.id===sub.provId);
+    if(prov && tabActual==='nuevo'){
+      prov.nombre = document.getElementById('np-nombre').value.trim()||prov.nombre;
+      prov.gremio = document.getElementById('np-gremio').value.trim();
+      prov.contacto = document.getElementById('np-contacto').value.trim();
+      prov.email = document.getElementById('np-email').value.trim();
+    }
+    sub.fechaAlta = document.getElementById('prov-fecha-alta').value||sub.fechaAlta;
+    delete document.getElementById('modal-prov').dataset.editSubId;
+    guardarDB(); cerrarModales(); renderMain(); toast('Datos actualizados ✓');
+    return;
+  }
+  _guardar();
 }
+
+// ============================================================
+// UTILS
+// ============================================================
+function cerrarModales(){
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('on'));
+  provSelId = null;
+  delete document.getElementById('modal-prov').dataset.editSubId;
+}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)cerrarModales();}));
 
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2200);
+  setTimeout(()=>t.classList.remove('show'),2400);
 }
 
-function paint(){
-  const lista=document.getElementById('lista');
-  if(!data.length){
-    lista.innerHTML=`<div class="empty">
-      <div class="empty-icon">🏗️</div>
-      <p>Aún no hay subcontratas dadas de alta.<br>Pulsa <strong>+ Nueva empresa</strong> para empezar.</p>
-    </div>`;
-    document.getElementById('sn-total').textContent=0;
-    document.getElementById('sn-ok').textContent=0;
-    document.getElementById('sn-inc').textContent=0;
-    document.getElementById('sn-pct').textContent='—';
-    return;
+// Alerta al cambio de mes: comprobar si el mes guardado != mes actual
+function checkAlertaCambioMes(){
+  const saved = localStorage.getItem('gestor_ultimo_mes');
+  const actual = ANO_ACTUAL+'_'+MES_ACTUAL;
+  if(saved && saved !== actual){
+    // Ha cambiado el mes: mostrar alerta
+    setTimeout(()=>{
+      alert(`📅 Cambio de mes detectado.\n\n¡Recuerda solicitar la documentación mensual de ${MES_LABEL} a todas tus subcontratas!`);
+    }, 800);
   }
-
-  lista.innerHTML=data.map(e=>{
-    const p=pct(e), d=done(e);
-    const [col,bg]=colores(p);
-    const ini=e.n.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
-
-    let docsHTML='';
-    if(e.open){
-      SECS.forEach(s=>{
-        docsHTML+=`<div class="sec-title">${s.t}</div>`;
-        s.docs.forEach(([doc,tag])=>{
-          const on=e.checks[doc];
-          const id_safe='d_'+e.id+'_'+doc.replace(/[^a-zA-Z0-9]/g,'_');
-          docsHTML+=`<div class="doc${on?' on':''}" id="${id_safe}" onclick="toggleDoc('${e.id}',${JSON.stringify(doc)})">
-            <div class="cb${on?' on':''}">${on?'✓':''}</div>
-            <span class="doc-label">${doc}${tag==='mens'?'<span class="tm">mensual</span>':tag==='trim'?'<span class="tm" style="background:#e8f4fd;color:#185FA5">trimestral</span>':''}</span>
-          </div>`;
-        });
-      });
-    }
-
-    return `<div class="card">
-      <div class="card-head" onclick="toggleOpen('${e.id}')">
-        <div class="avatar" style="background:${e.bg};color:${e.col}">${ini}</div>
-        <div class="card-info">
-          <div class="card-name">${e.n}</div>
-          <div class="card-sub">${e.g||'Sin gremio'}${e.c?' · '+e.c:''}</div>
-        </div>
-        <span class="badge" style="background:${bg};color:${col}">${d}/${TOTAL}</span>
-        <div class="dot" style="background:${col}"></div>
-        <span class="chevron" style="${e.open?'transform:rotate(180deg)':''}">▼</span>
-      </div>
-      ${e.open?`<div class="card-body">
-        <div class="bar-wrap"><div class="bar" style="width:${p}%;background:${col}"></div></div>
-        ${docsHTML}
-        <div class="actions">
-          <button onclick="event.stopPropagation();abrirModal('${e.id}')">✎ Editar</button>
-          <button class="danger" style="margin-left:auto" onclick="event.stopPropagation();del('${e.id}')">✕ Eliminar</button>
-        </div>
-      </div>`:''}
-    </div>`;
-  }).join('');
-
-  const tot=data.length;
-  const ok=data.filter(e=>pct(e)===100).length;
-  const inc=data.filter(e=>{const p=pct(e);return p>0&&p<100;}).length;
-  const td=data.reduce((a,e)=>a+done(e),0);
-  document.getElementById('sn-total').textContent=tot;
-  document.getElementById('sn-ok').textContent=ok;
-  document.getElementById('sn-inc').textContent=inc;
-  document.getElementById('sn-pct').textContent=Math.round(td/(tot*TOTAL)*100)+'%';
+  localStorage.setItem('gestor_ultimo_mes', actual);
 }
 
-load();
+// ============================================================
+// INIT
+// ============================================================
+cargar();
+checkAlertaCambioMes();
+if(db.obras.length) obraActual = db.obras[0].id;
+renderSidebar();
+renderMain();
 </script>
 </body>
 </html>
