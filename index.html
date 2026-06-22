@@ -72,19 +72,33 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 
 /* MENSUAL GRID */
 .mes-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.mes-btn{font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid #e0e0da;background:#f8f8f5;color:#666;cursor:pointer;font-family:inherit;transition:all .15s}
-.mes-btn.on{background:#1D9E75;border-color:#1D9E75;color:#fff;font-weight:600}
-.mes-btn.pendiente{background:#fff0f0;border-color:#f0c0c0;color:#a32d2d}
-.mes-section{background:#fafaf8;border-radius:8px;padding:10px 12px;margin-top:6px}
-.mes-doc-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f0f0ec}
-.mes-doc-row:last-child{border-bottom:none}
-.mes-doc-label{font-size:12px;color:#555;flex:1}
-.mes-months{display:flex;gap:4px;flex-wrap:wrap}
-.mes-cb{width:28px;height:22px;border-radius:4px;border:1px solid #e0e0da;background:#f5f5f3;font-size:10px;color:#888;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0}
-.mes-cb.on{background:#1D9E75;border-color:#1D9E75;color:#fff;font-weight:700}
-.mes-cb.pend{background:#fff0f0;border-color:#f5c0c0;color:#c04040}
-.mes-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.mes-header span{font-size:11px;color:#aaa}
+.mes-section{margin-top:8px}
+.mes-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.mes-pill{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid #e0e0da;background:#f8f8f5;color:#666;cursor:pointer;font-family:inherit;transition:all .15s;font-weight:500}
+.mes-pill:hover{border-color:#aaa;background:#f0f0ec}
+.mes-pill.activo{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.mes-panel{background:#fafaf8;border:1px solid #e8e8e0;border-radius:10px;padding:12px 14px}
+.mes-panel-titulo{font-size:12px;font-weight:700;color:#555;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.mes-doc-item{display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid #f0f0ec;cursor:pointer;border-radius:6px}
+.mes-doc-item:last-child{border-bottom:none}
+.mes-doc-item:hover{background:#ececea}
+.mes-doc-cb{width:18px;height:18px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s;pointer-events:none}
+.mes-doc-cb.on{background:#1D9E75;border-color:#1D9E75}
+.mes-doc-txt{font-size:13px;color:#555;flex:1;line-height:1.4;pointer-events:none}
+.mes-doc-item.on .mes-doc-txt{text-decoration:line-through;color:#bbb}
+.mes-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.mes-pill{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid #e0e0da;background:#f8f8f5;color:#666;cursor:pointer;font-family:inherit;transition:all .15s;font-weight:500}
+.mes-pill:hover{border-color:#aaa;background:#f0f0ec}
+.mes-pill.activo{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.mes-panel{background:#fafaf8;border:1px solid #e8e8e0;border-radius:10px;padding:12px 14px}
+.mes-panel-titulo{font-size:12px;font-weight:700;color:#555;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.mes-doc-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f0ec;cursor:pointer;border-radius:6px}
+.mes-doc-item:last-child{border-bottom:none}
+.mes-doc-item:hover{background:#f0f0ec;margin:0 -6px;padding:7px 6px}
+.mes-doc-cb{width:18px;height:18px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s}
+.mes-doc-cb.on{background:#1D9E75;border-color:#1D9E75}
+.mes-doc-txt{font-size:13px;color:#555;flex:1;line-height:1.4}
+.mes-doc-item.on .mes-doc-txt{text-decoration:line-through;color:#bbb}
 
 /* FECHA ALTA */
 .fecha-alta{font-size:11px;color:#aaa;margin-top:2px}
@@ -537,6 +551,25 @@ function toggleMensual(subId, doc, ano, mes){
   renderMain();
 }
 
+function selMes(subId, mesKeyVal){
+  const obra = db.obras.find(x=>x.id===obraActual);
+  const sub = obra.subcontratas.find(s=>s.id===subId);
+  if(!sub) return;
+  sub._mesVisto = mesKeyVal;
+  renderMain();
+}
+
+// Event delegation para docs mensuales (evita problemas con onclick en innerHTML)
+document.addEventListener('click', function(e){
+  const item = e.target.closest('.mes-doc-item');
+  if(!item) return;
+  const subId = item.dataset.sub;
+  const doc = JSON.parse(item.dataset.doc);
+  const ano = parseInt(item.dataset.ano);
+  const mes = parseInt(item.dataset.mes);
+  toggleMensual(subId, doc, ano, mes);
+});
+
 function toggleOpen(subId){
   const obra = db.obras.find(x=>x.id===obraActual);
   const sub = obra.subcontratas.find(s=>s.id===subId);
@@ -612,26 +645,47 @@ function mesesDisponibles(sub){
 function renderMensual(sub){
   const meses = mesesDisponibles(sub);
   if(!meses.length) return '';
-  let html = `<div class="mes-section">
-    <div class="mes-header">
-      <strong style="font-size:12px">Documentación mensual</strong>
-      <span>Marca cada mes cuando lo recibas</span>
+  // Mes activo: por defecto el mes actual
+  if(!sub._mesVisto) sub._mesVisto = mesKey(ANO_ACTUAL, MES_ACTUAL);
+  const mesActivoKey = sub._mesVisto;
+  const mesActivo = meses.find(m=>mesKey(m.ano,m.mes)===mesActivoKey) || meses[meses.length-1];
+
+  // Pills de meses
+  let pills = '<div class="mes-selector">';
+  meses.forEach(({ano,mes,label})=>{
+    const key = mesKey(ano,mes);
+    const esMesActual = ano===ANO_ACTUAL && mes===MES_ACTUAL;
+    const docsOk = DOCS_MENSUAL.filter(d=>sub.checksMensual[d]?.[key]).length;
+    const allOk = docsOk === DOCS_MENSUAL.length;
+    const activo = key === mesActivoKey;
+    let estilo = '';
+    if(!activo){
+      if(allOk) estilo = 'style="background:#d4f5ea;border-color:#1D9E75;color:#1D9E75"';
+      else if(esMesActual) estilo = 'style="background:#fff0f0;border-color:#f5c0c0;color:#c04040"';
+    }
+    pills += `<button class="mes-pill${activo?' activo':''}" ${estilo} onclick="selMes('${sub.id}','${key}')">${label} ${allOk?'✓':docsOk+'/'+DOCS_MENSUAL.length}</button>`;
+  });
+  pills += '</div>';
+
+  // Panel del mes activo
+  const {ano, mes, label} = mesActivo;
+  const key = mesKey(ano, mes);
+  const docsOk = DOCS_MENSUAL.filter(d=>sub.checksMensual[d]?.[key]).length;
+  let panel = `<div class="mes-panel">
+    <div class="mes-panel-titulo">
+      <span>📅 ${label}</span>
+      <span style="font-size:11px;color:${docsOk===DOCS_MENSUAL.length?'#1D9E75':'#EF9F27'}">${docsOk}/${DOCS_MENSUAL.length} recibidos</span>
     </div>`;
   DOCS_MENSUAL.forEach(doc=>{
-    html += `<div class="mes-doc-row">
-      <span class="mes-doc-label">${doc}</span>
-      <div class="mes-months">`;
-    meses.forEach(({ano,mes,label})=>{
-      const key = mesKey(ano,mes);
-      const on = sub.checksMensual[doc]?.[key];
-      const esMesActual = ano===ANO_ACTUAL && mes===MES_ACTUAL;
-      const cls = on?'on':esMesActual?'pend':'';
-      html += `<div class="mes-cb ${cls}" title="${label}" onclick="toggleMensual('${sub.id}',${JSON.stringify(doc)},${ano},${mes})">${label.substring(0,1)}</div>`;
-    });
-    html += `</div></div>`;
+    const on = sub.checksMensual[doc]?.[key];
+    panel += `<div class="mes-doc-item${on?' on':''}" data-sub="${sub.id}" data-doc='${JSON.stringify(doc)}' data-ano="${ano}" data-mes="${mes}">
+      <div class="mes-doc-cb${on?' on':''}">${on?'✓':''}</div>
+      <span class="mes-doc-txt">${doc}</span>
+    </div>`;
   });
-  html += '</div>';
-  return html;
+  panel += '</div>';
+
+  return `<div class="mes-section">${pills}${panel}</div>`;
 }
 
 // ============================================================
