@@ -143,6 +143,7 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
   .stats{grid-template-columns:repeat(2,1fr)}
 }
 .note{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 16px;font-size:12px;color:#888;margin-top:12px;line-height:1.7}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* OBRAS VACÍAS */
 .no-obra{display:flex;align-items:center;justify-content:center;min-height:80vh}
@@ -309,16 +310,50 @@ let provSelId = null;
 // ============================================================
 // PERSISTENCIA
 // ============================================================
-function cargar(){
-  try{
-    const s = localStorage.getItem('gestor_obras_v1');
-    if(s) db = JSON.parse(s);
-  } catch(e){ db = {obras:[], proveedores:[]}; }
-  // Migración: asegurar estructura
+const API_URL = 'https://script.google.com/macros/s/AKfycbzdJDNm_ImXIJN0-DKsSXbLnKkkHo9g9zOLRmheM347FYnKib9EM5MkSU3MJpH0t2Yg/exec';
+
+function mostrarCargando(msg){
+  document.getElementById('main-content').innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;color:#aaa">
+      <div style="width:32px;height:32px;border:3px solid #e0e0e0;border-top-color:#1a1a1a;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+      <div style="font-size:13px">${msg}</div>
+    </div>`;
+}
+
+async function cargar(){
+  mostrarCargando('Cargando datos compartidos…');
+  try {
+    const r = await fetch(API_URL + '?action=load');
+    const text = await r.text();
+    const parsed = JSON.parse(text);
+    if(parsed && typeof parsed === 'object' && !parsed.error){
+      db = parsed;
+    }
+  } catch(e){
+    console.warn('Error cargando de Sheets, usando local:', e);
+    try{
+      const s = localStorage.getItem('gestor_obras_v1');
+      if(s) db = JSON.parse(s);
+    } catch(e2){}
+  }
   if(!db.obras) db.obras = [];
   if(!db.proveedores) db.proveedores = [];
 }
-function guardarDB(){ localStorage.setItem('gestor_obras_v1', JSON.stringify(db)); }
+
+async function guardarDB(){
+  // Guardar local inmediatamente (respaldo)
+  try{ localStorage.setItem('gestor_obras_v1', JSON.stringify(db)); } catch(e){}
+  // Guardar en Google Sheets
+  try {
+    await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(db)
+    });
+  } catch(e){
+    console.warn('Error guardando en Sheets:', e);
+    toast('⚠️ Sin conexión — guardado solo localmente');
+  }
+}
 
 // ============================================================
 // OBRAS
@@ -341,7 +376,7 @@ function abrirModalObra(id){
   setTimeout(()=>document.getElementById('obra-n').focus(),80);
 }
 
-function guardarObra(){
+async function guardarObra(){
   const n = document.getElementById('obra-n').value.trim();
   if(!n){ document.getElementById('obra-n').focus(); return; }
   const editId = document.getElementById('modal-obra').dataset.editId;
@@ -365,7 +400,7 @@ function guardarObra(){
     obraActual = nueva.id;
     toast('Obra creada ✓');
   }
-  guardarDB();
+  await guardarDB();
   cerrarModales();
   renderSidebar();
   renderMain();
@@ -463,7 +498,7 @@ function selProv(id){
   document.getElementById('prov-sugg').classList.remove('on');
 }
 
-function guardarProveedorEnObra(){
+async function guardarProveedorEnObra(){
   const editSubId = document.getElementById('modal-prov').dataset.editSubId;
 
   // MODO EDICIÓN
@@ -480,7 +515,7 @@ function guardarProveedorEnObra(){
     const fa = document.getElementById('prov-fecha-alta').value;
     if(fa) sub.fechaAlta = fa;
     delete document.getElementById('modal-prov').dataset.editSubId;
-    guardarDB(); cerrarModales(); renderMain(); toast('Datos actualizados ✓');
+    await guardarDB(); cerrarModales(); renderMain(); toast('Datos actualizados ✓');
     return;
   }
 
@@ -518,36 +553,36 @@ function guardarProveedorEnObra(){
     checksMensual: initChecksMensual(),
     open: true
   });
-  guardarDB();
+  await guardarDB();
   cerrarModales();
   renderMain();
   toast('Subcontrata añadida ✓');
 }
 
-function eliminarSubcontrata(subId){
+async function eliminarSubcontrata(subId){
   if(!confirm('¿Eliminar esta subcontrata de la obra?')) return;
   const obra = db.obras.find(x=>x.id===obraActual);
   obra.subcontratas = obra.subcontratas.filter(s=>s.id!==subId);
-  guardarDB();
+  await guardarDB();
   renderMain();
   toast('Subcontrata eliminada');
 }
 
-function toggleFijo(subId, doc){
+async function toggleFijo(subId, doc){
   const obra = db.obras.find(x=>x.id===obraActual);
   const sub = obra.subcontratas.find(s=>s.id===subId);
   sub.checksFijos[doc] = !sub.checksFijos[doc];
-  guardarDB();
+  await guardarDB();
   renderMain();
 }
 
-function toggleMensual(subId, doc, ano, mes){
+async function toggleMensual(subId, doc, ano, mes){
   const obra = db.obras.find(x=>x.id===obraActual);
   const sub = obra.subcontratas.find(s=>s.id===subId);
   if(!sub.checksMensual[doc]) sub.checksMensual[doc]={};
   const key = mesKey(ano,mes);
   sub.checksMensual[doc][key] = !sub.checksMensual[doc][key];
-  guardarDB();
+  await guardarDB();
   renderMain();
 }
 
@@ -560,21 +595,21 @@ function selMes(subId, mesKeyVal){
 }
 
 // Event delegation para docs mensuales (evita problemas con onclick en innerHTML)
-document.addEventListener('click', function(e){
+document.addEventListener('click', async function(e){
   const item = e.target.closest('.mes-doc-item');
   if(!item) return;
   const subId = item.dataset.sub;
   const doc = JSON.parse(item.dataset.doc);
   const ano = parseInt(item.dataset.ano);
   const mes = parseInt(item.dataset.mes);
-  toggleMensual(subId, doc, ano, mes);
+  await toggleMensual(subId, doc, ano, mes);
 });
 
 function toggleOpen(subId){
   const obra = db.obras.find(x=>x.id===obraActual);
   const sub = obra.subcontratas.find(s=>s.id===subId);
   sub.open = !sub.open;
-  guardarDB();
+  await guardarDB();
   renderMain();
 }
 
@@ -900,11 +935,13 @@ function checkAlertaCambioMes(){
 // ============================================================
 // INIT
 // ============================================================
-cargar();
-checkAlertaCambioMes();
-if(db.obras.length) obraActual = db.obras[0].id;
-renderSidebar();
-renderMain();
+(async () => {
+  await cargar();
+  checkAlertaCambioMes();
+  if(db.obras.length) obraActual = db.obras[0].id;
+  renderSidebar();
+  renderMain();
+})();
 </script>
 </body>
 </html>
