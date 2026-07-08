@@ -669,11 +669,12 @@ document.addEventListener('click', async function(e){
   }
 });
 
-function toggleOpen(subId){
+async function toggleOpen(subId){
   const obra = db.obras.find(x=>x.id===obraActual);
   const sub = obra.subcontratas.find(s=>s.id===subId);
+  if(!sub) return;
   sub.open = !sub.open;
-  await guardarDB();
+  guardarDB(); // no await — no bloqueamos el render por abrir/cerrar
   renderMain();
 }
 
