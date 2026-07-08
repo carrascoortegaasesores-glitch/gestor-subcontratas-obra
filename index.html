@@ -117,6 +117,21 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:13px;padding:10px 20px;border-radius:20px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
 .note{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 16px;font-size:12px;color:#888;margin-top:12px;line-height:1.7}
+/* TRABAJADORES */
+.trb-wrap{margin-top:4px}
+.trb-card{background:#fff;border:1px solid #e8e8e0;border-radius:10px;margin-bottom:8px;overflow:hidden}
+.trb-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;user-select:none}
+.trb-head:hover{background:#fafaf8}
+.trb-avatar{width:30px;height:30px;border-radius:50%;background:#f0f0ec;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#666;flex-shrink:0}
+.trb-info{flex:1;min-width:0}
+.trb-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trb-puesto{font-size:11px;color:#aaa}
+.trb-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px}
+.trb-body{padding:8px 12px 12px;border-top:1px solid #f0f0ec}
+.trb-add-form{display:flex;gap:6px;margin-top:8px;padding:10px 12px;background:#fafaf8;border:1px dashed #e0e0da;border-radius:10px;flex-wrap:wrap;align-items:flex-end}
+.trb-add-form .field-mini{flex:1;min-width:120px}
+.trb-add-form label{font-size:11px;color:#888;margin-bottom:3px;display:block}
+.trb-add-form input{padding:6px 9px;font-size:12px}
 .spinner{width:28px;height:28px;border:3px solid #e0e0e0;border-top-color:#1a1a1a;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -267,7 +282,6 @@ const DOCS_MEN = [
 
 const SECCIONES = [
   {id:'emp', label:'📁 Documentación de empresa', docs: DOCS_EMP},
-  {id:'trb', label:'👷 Documentación de trabajadores', docs: DOCS_TRB},
   {id:'maq', label:'🏗️ Maquinaria y equipos', docs: DOCS_MAQ}
 ];
 
@@ -330,13 +344,27 @@ function toast(msg) {
 function initSub() {
   const checks = {};
   DOCS_EMP.forEach(d => checks[d] = 'pend');
-  DOCS_TRB.forEach(d => checks[d] = 'pend');
   DOCS_MAQ.forEach(d => checks[d] = 'pend');
   return {
-    checks,       // pend | ok | na
-    checksM: {},  // {doc: {ANO_MES: bool}}
-    extras: {},   // {secId: [texto,...]}
+    checks,        // pend | ok | na
+    checksM: {},   // {doc: {ANO_MES: bool}}
+    extras: {},    // {secId: [texto,...]}
+    trabajadores: [], // [{id, nombre, puesto, fechaAlta, checks}]
     open: true
+  };
+}
+
+function initTrabajador(nombre, puesto, fechaAlta) {
+  const checks = {};
+  DOCS_TRB.forEach(d => checks[d] = 'pend');
+  return {
+    id: '' + Date.now() + Math.random().toString(36).slice(2,6),
+    nombre: nombre || '',
+    puesto: puesto || '',
+    fechaAlta: fechaAlta || new Date().toISOString().split('T')[0],
+    checks,   // pend | ok | na
+    extras: [], // docs extra para este trabajador
+    open: false
   };
 }
 
@@ -348,19 +376,41 @@ function getIni(nombre) {
 
 function calcStats(sub) {
   let total = 0, ok = 0;
-  // Fijos estándar
+  // Docs empresa + maquinaria
   Object.entries(sub.checks).forEach(([k,v]) => {
-    if (v === 'na') return; // no aplica no cuenta
-    total++;
-    if (v === 'ok') ok++;
+    if (v === 'na') return;
+    total++; if (v === 'ok') ok++;
   });
-  // Extras
+  // Extras de secciones
   Object.values(sub.extras || {}).forEach(arr => {
     arr.forEach(doc => {
       const key = 'X:' + doc;
       if (sub.checks[key] === 'na') return;
-      total++;
-      if (sub.checks[key] === 'ok') ok++;
+      total++; if (sub.checks[key] === 'ok') ok++;
+    });
+  });
+  // Trabajadores
+  (sub.trabajadores || []).forEach(trb => {
+    Object.entries(trb.checks).forEach(([k,v]) => {
+      if (v === 'na') return;
+      total++; if (v === 'ok') ok++;
+    });
+    (trb.extras || []).forEach(doc => {
+      const key = 'XT:' + doc;
+      if (trb.checks[key] === 'na') return;
+      total++; if (trb.checks[key] === 'ok') ok++;
+    });
+  });
+  // Trabajadores
+  (sub.trabajadores || []).forEach(trb => {
+    Object.entries(trb.checks).forEach(([k,v]) => {
+      if (v === 'na') return;
+      total++; if (v === 'ok') ok++;
+    });
+    (trb.extras || []).forEach(doc => {
+      const key = 'XT:' + doc;
+      if (trb.checks[key] === 'na') return;
+      total++; if (trb.checks[key] === 'ok') ok++;
     });
   });
   // Mensual mes actual
@@ -537,10 +587,14 @@ function buildCard(sub, si, obra) {
   barWrap.innerHTML = '<div class="bar" style="width:' + pct + '%;background:' + col + '"></div>';
   body.appendChild(barWrap);
 
-  // Secciones fijas
-  SECCIONES.forEach(sec => {
-    body.appendChild(buildSeccion(sub, sec, obra));
-  });
+  // Seccion empresa
+  body.appendChild(buildSeccion(sub, SECCIONES[0], obra));
+
+  // Sección trabajadores
+  body.appendChild(buildTrabajadores(sub));
+
+  // Seccion maquinaria
+  body.appendChild(buildSeccion(sub, SECCIONES[1], obra));
 
   // Sección mensual
   body.appendChild(buildMensual(sub));
@@ -656,6 +710,211 @@ function buildDocRow(sub, doc, extraSecId) {
       e.stopPropagation();
       sub.extras[extraSecId] = sub.extras[extraSecId].filter(d => d !== doc);
       delete sub.checks[key];
+      await guardarDB();
+      renderMain();
+    });
+    row.appendChild(btnDel);
+  }
+
+  row.appendChild(btnNa);
+  return row;
+}
+
+function buildTrabajadores(sub) {
+  if (!sub.trabajadores) sub.trabajadores = [];
+  const wrap = document.createElement('div');
+
+  const title = document.createElement('div');
+  title.className = 'sec-title';
+  const tTotal = sub.trabajadores.length;
+  const tOk = sub.trabajadores.filter(t => {
+    const vals = Object.values(t.checks);
+    return vals.every(v => v === 'ok' || v === 'na');
+  }).length;
+  title.innerHTML = '<span>👷 Trabajadores (' + tTotal + ')</span>' +
+    (tTotal ? '<span style="font-size:10px;padding:2px 8px;border-radius:8px;background:' + (tOk===tTotal?'#d4f5ea':'#fef3d4') + ';color:' + (tOk===tTotal?'#1D9E75':'#BA7517') + ';font-weight:700">' + tOk + '/' + tTotal + ' completos</span>' : '');
+  wrap.appendChild(title);
+
+  // Lista de trabajadores
+  const lista = document.createElement('div');
+  lista.className = 'trb-wrap';
+
+  sub.trabajadores.forEach((trb, ti) => {
+    lista.appendChild(buildTrbCard(sub, trb, ti));
+  });
+  wrap.appendChild(lista);
+
+  // Formulario añadir trabajador
+  const form = document.createElement('div');
+  form.className = 'trb-add-form';
+
+  const fn = document.createElement('div'); fn.className = 'field-mini';
+  fn.innerHTML = '<label>Nombre y apellidos</label>';
+  const inpN = document.createElement('input'); inpN.placeholder = 'Ej: Juan García López';
+  fn.appendChild(inpN);
+
+  const fp = document.createElement('div'); fp.className = 'field-mini';
+  fp.innerHTML = '<label>Puesto / oficio</label>';
+  const inpP = document.createElement('input'); inpP.placeholder = 'Ej: Encofrador';
+  fp.appendChild(inpP);
+
+  const ff = document.createElement('div'); ff.className = 'field-mini';
+  ff.innerHTML = '<label>Fecha de alta</label>';
+  const inpF = document.createElement('input'); inpF.type = 'date';
+  inpF.value = new Date().toISOString().split('T')[0];
+  ff.appendChild(inpF);
+
+  const btnA = document.createElement('button');
+  btnA.className = 'primary sm'; btnA.textContent = '+ Añadir trabajador';
+  btnA.addEventListener('click', async () => {
+    const nombre = inpN.value.trim();
+    if (!nombre) { inpN.focus(); return; }
+    sub.trabajadores.push(initTrabajador(nombre, inpP.value.trim(), inpF.value));
+    await guardarDB();
+    renderMain();
+    toast('Trabajador añadido ✓');
+  });
+
+  form.appendChild(fn); form.appendChild(fp); form.appendChild(ff); form.appendChild(btnA);
+  wrap.appendChild(form);
+  return wrap;
+}
+
+function buildTrbCard(sub, trb, ti) {
+  const checks = trb.checks || {};
+  const vals = Object.entries(checks);
+  const ok = vals.filter(([k,v]) => v === 'ok').length;
+  const na = vals.filter(([k,v]) => v === 'na').length;
+  const total = vals.length - na + (trb.extras||[]).length;
+  const okTotal = ok + (trb.extras||[]).filter(d => trb.checks['XT:'+d]==='ok').length;
+  const pct = total ? Math.round(okTotal/total*100) : 0;
+  const [col, bg] = colorPct(pct);
+
+  const card = document.createElement('div');
+  card.className = 'trb-card';
+
+  const head = document.createElement('div');
+  head.className = 'trb-head';
+  const ini = getIni(trb.nombre);
+  const fa = trb.fechaAlta ? new Date(trb.fechaAlta).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) : '';
+  head.innerHTML =
+    '<div class="trb-avatar" style="background:' + bg + ';color:' + col + '">' + ini + '</div>' +
+    '<div class="trb-info">' +
+      '<div class="trb-name">' + trb.nombre + '</div>' +
+      '<div class="trb-puesto">' + (trb.puesto||'Sin puesto especificado') + (fa?' · Alta: '+fa:'') + '</div>' +
+    '</div>' +
+    '<span class="trb-badge" style="background:' + bg + ';color:' + col + '">' + okTotal + '/' + total + '</span>' +
+    '<div class="dot" style="background:' + col + '"></div>' +
+    '<span class="chevron">' + (trb.open?'▲':'▼') + '</span>';
+
+  head.addEventListener('click', () => {
+    trb.open = !trb.open;
+    guardarDB();
+    const body = card.querySelector('.trb-body');
+    if (body) body.style.display = trb.open ? '' : 'none';
+    head.querySelector('.chevron').textContent = trb.open ? '▲' : '▼';
+  });
+  card.appendChild(head);
+
+  if (!trb.open) return card;
+
+  const body = document.createElement('div');
+  body.className = 'trb-body';
+
+  // Docs estándar del trabajador
+  DOCS_TRB.forEach(doc => {
+    body.appendChild(buildTrbDocRow(trb, doc, false));
+  });
+
+  // Docs extra del trabajador
+  (trb.extras || []).forEach(doc => {
+    body.appendChild(buildTrbDocRow(trb, doc, true));
+  });
+
+  // Añadir doc extra
+  const addRow = document.createElement('div');
+  addRow.className = 'add-doc-row';
+  const inp = document.createElement('input');
+  inp.className = 'add-doc-input';
+  inp.placeholder = '+ Añadir documento personalizado…';
+  const btnAdd = document.createElement('button');
+  btnAdd.className = 'sm'; btnAdd.textContent = 'Añadir';
+  const doAdd = async () => {
+    const txt = inp.value.trim();
+    if (!txt) return;
+    if (!trb.extras) trb.extras = [];
+    if (trb.extras.includes(txt)) { toast('Ya existe'); return; }
+    trb.extras.push(txt);
+    trb.checks['XT:' + txt] = 'pend';
+    await guardarDB();
+    renderMain();
+  };
+  btnAdd.addEventListener('click', doAdd);
+  inp.addEventListener('keydown', e => { if (e.key==='Enter') doAdd(); });
+  addRow.appendChild(inp); addRow.appendChild(btnAdd);
+  body.appendChild(addRow);
+
+  // Eliminar trabajador
+  const delRow = document.createElement('div');
+  delRow.style.cssText = 'display:flex;justify-content:flex-end;margin-top:10px;padding-top:8px;border-top:1px solid #f0f0ec';
+  const btnDel = document.createElement('button');
+  btnDel.className = 'sm danger'; btnDel.textContent = '✕ Eliminar trabajador';
+  btnDel.addEventListener('click', async () => {
+    if (!confirm('¿Eliminar a ' + trb.nombre + '?')) return;
+    sub.trabajadores = sub.trabajadores.filter(t => t.id !== trb.id);
+    await guardarDB();
+    renderMain();
+  });
+  delRow.appendChild(btnDel);
+  body.appendChild(delRow);
+
+  card.appendChild(body);
+  return card;
+}
+
+function buildTrbDocRow(trb, doc, isExtra) {
+  const key = isExtra ? 'XT:' + doc : doc;
+  const estado = trb.checks[key] || 'pend';
+
+  const row = document.createElement('div');
+  row.className = 'doc-row' + (estado==='ok'?' ok':estado==='na'?' na':'');
+
+  const cb = document.createElement('div');
+  cb.className = 'doc-cb' + (estado==='ok'?' ok':estado==='na'?' na':'');
+  cb.textContent = estado==='ok' ? '✓' : estado==='na' ? '—' : '';
+
+  const txt = document.createElement('span');
+  txt.className = 'doc-txt';
+  txt.textContent = doc;
+
+  const btnNa = document.createElement('button');
+  btnNa.className = 'doc-na-btn';
+  btnNa.textContent = estado==='na' ? 'Reactivar' : 'No aplica';
+
+  row.addEventListener('click', async (e) => {
+    if (e.target === btnNa) return;
+    if (estado === 'na') return;
+    trb.checks[key] = estado==='ok' ? 'pend' : 'ok';
+    await guardarDB();
+    renderMain();
+  });
+
+  btnNa.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    trb.checks[key] = estado==='na' ? 'pend' : 'na';
+    await guardarDB();
+    renderMain();
+  });
+
+  row.appendChild(cb); row.appendChild(txt);
+
+  if (isExtra) {
+    const btnDel = document.createElement('button');
+    btnDel.className = 'doc-del-btn'; btnDel.textContent = '✕';
+    btnDel.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      trb.extras = trb.extras.filter(d => d !== doc);
+      delete trb.checks[key];
       await guardarDB();
       renderMain();
     });
