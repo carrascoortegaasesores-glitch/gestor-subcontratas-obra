@@ -62,9 +62,9 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 .sec-title{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 7px;display:flex;align-items:center;gap:6px}
 .doc{display:flex;align-items:flex-start;gap:9px;padding:5px 6px;border-radius:6px;cursor:pointer}
 .doc:hover{background:#f8f8f5}
-.cb{width:17px;height:17px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s}
+.cb{width:17px;height:17px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s;pointer-events:none}
 .cb.on{background:#1D9E75;border-color:#1D9E75}
-.doc-label{font-size:13px;color:#555;line-height:1.5}
+.doc-label{font-size:13px;color:#555;line-height:1.5;pointer-events:none}
 .doc.on .doc-label{text-decoration:line-through;color:#bbb}
 .tm{font-size:10px;padding:2px 6px;background:#fef3e2;color:#8a5700;border-radius:8px;margin-left:4px;font-weight:500}
 .trim{font-size:10px;padding:2px 6px;background:#e8f4fd;color:#185FA5;border-radius:8px;margin-left:4px;font-weight:500}
@@ -596,13 +596,24 @@ function selMes(subId, mesKeyVal){
 
 // Event delegation para docs mensuales (evita problemas con onclick en innerHTML)
 document.addEventListener('click', async function(e){
-  const item = e.target.closest('.mes-doc-item');
-  if(!item) return;
-  const subId = item.dataset.sub;
-  const doc = JSON.parse(item.dataset.doc);
-  const ano = parseInt(item.dataset.ano);
-  const mes = parseInt(item.dataset.mes);
-  await toggleMensual(subId, doc, ano, mes);
+  // Documentos mensuales
+  const mesItem = e.target.closest('.mes-doc-item');
+  if(mesItem){
+    const subId = mesItem.dataset.sub;
+    const doc = JSON.parse(mesItem.dataset.doc);
+    const ano = parseInt(mesItem.dataset.ano);
+    const mes = parseInt(mesItem.dataset.mes);
+    await toggleMensual(subId, doc, ano, mes);
+    return;
+  }
+  // Documentos fijos (empresa, trabajadores, maquinaria)
+  const fijoItem = e.target.closest('.doc-fijo');
+  if(fijoItem){
+    const subId = fijoItem.dataset.sub;
+    const doc = JSON.parse(fijoItem.dataset.doc);
+    await toggleFijo(subId, doc);
+    return;
+  }
 });
 
 function toggleOpen(subId){
@@ -803,27 +814,27 @@ function renderMain(){
         bodyHtml += '<div class="sec-title">📁 Documentación de empresa</div>';
         DOCS_EMPRESA.forEach(doc=>{
           const on = sub.checksFijos[doc];
-          bodyHtml += `<div class="doc${on?' on':''}" onclick="toggleFijo('${sub.id}',${JSON.stringify(doc)})">
-            <div class="cb${on?' on':''}">${on?'✓':''}</div>
-            <span class="doc-label">${doc}</span>
+          bodyHtml += `<div class="doc${on?' on':''} doc-fijo" data-sub="${sub.id}" data-doc='${JSON.stringify(doc)}'>
+            <div class="cb${on?' on':''} cb-ptr">${on?'✓':''}</div>
+            <span class="doc-label doc-ptr">${doc}</span>
           </div>`;
         });
         // TRABAJADORES
         bodyHtml += '<div class="sec-title">👷 Documentación de trabajadores</div>';
         DOCS_TRABAJADORES.forEach(doc=>{
           const on = sub.checksFijos[doc];
-          bodyHtml += `<div class="doc${on?' on':''}" onclick="toggleFijo('${sub.id}',${JSON.stringify(doc)})">
-            <div class="cb${on?' on':''}">${on?'✓':''}</div>
-            <span class="doc-label">${doc}</span>
+          bodyHtml += `<div class="doc${on?' on':''} doc-fijo" data-sub="${sub.id}" data-doc='${JSON.stringify(doc)}'>
+            <div class="cb${on?' on':''} cb-ptr">${on?'✓':''}</div>
+            <span class="doc-label doc-ptr">${doc}</span>
           </div>`;
         });
         // MAQUINARIA
         bodyHtml += '<div class="sec-title">🏗️ Maquinaria y equipos</div>';
         DOCS_MAQUINARIA.forEach(doc=>{
           const on = sub.checksFijos[doc];
-          bodyHtml += `<div class="doc${on?' on':''}" onclick="toggleFijo('${sub.id}',${JSON.stringify(doc)})">
-            <div class="cb${on?' on':''}">${on?'✓':''}</div>
-            <span class="doc-label">${doc}</span>
+          bodyHtml += `<div class="doc${on?' on':''} doc-fijo" data-sub="${sub.id}" data-doc='${JSON.stringify(doc)}'>
+            <div class="cb${on?' on':''} cb-ptr">${on?'✓':''}</div>
+            <span class="doc-label doc-ptr">${doc}</span>
           </div>`;
         });
         // MENSUAL
