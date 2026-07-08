@@ -60,12 +60,24 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 .bar-wrap{height:4px;background:#f0f0ec;border-radius:2px;margin:14px 0}
 .bar{height:4px;border-radius:2px;transition:width .4s}
 .sec-title{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 7px;display:flex;align-items:center;gap:6px}
-.doc{display:flex;align-items:flex-start;gap:9px;padding:5px 6px;border-radius:6px;cursor:pointer}
+.doc{display:flex;align-items:center;gap:9px;padding:5px 6px;border-radius:6px;cursor:pointer}
 .doc:hover{background:#f8f8f5}
-.cb{width:17px;height:17px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s;pointer-events:none}
+.cb{width:17px;height:17px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s;pointer-events:none}
 .cb.on{background:#1D9E75;border-color:#1D9E75}
-.doc-label{font-size:13px;color:#555;line-height:1.5;pointer-events:none}
+.cb.na{background:#ccc;border-color:#ccc}
+.doc-label{font-size:13px;color:#555;line-height:1.5;pointer-events:none;flex:1}
 .doc.on .doc-label{text-decoration:line-through;color:#bbb}
+.doc.na .doc-label{text-decoration:line-through;color:#bbb;font-style:italic}
+.doc-na-btn{font-size:10px;padding:2px 7px;border-radius:10px;border:1px solid #e0e0da;background:#f8f8f5;color:#999;cursor:pointer;font-family:inherit;flex-shrink:0;pointer-events:all;white-space:nowrap}
+.doc-na-btn:hover{background:#f0f0ec;color:#555}
+.doc.na .doc-na-btn{background:#f0f0ec;color:#777;border-color:#ccc}
+.add-doc-row{display:flex;align-items:center;gap:6px;padding:6px 6px;margin-top:4px}
+.add-doc-input{flex:1;font-size:12px;padding:5px 9px;border-radius:6px;border:1px solid #e0e0da;background:#fafaf8;color:#1a1a1a}
+.add-doc-input:focus{border-color:#888;outline:none;background:#fff}
+.add-doc-btn{font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;cursor:pointer;font-family:inherit;flex-shrink:0}
+.add-doc-btn:hover{background:#f0f0ec}
+.doc-custom-del{font-size:11px;color:#ccc;cursor:pointer;pointer-events:all;padding:2px 4px;flex-shrink:0}
+.doc-custom-del:hover{color:#a32d2d}
 .tm{font-size:10px;padding:2px 6px;background:#fef3e2;color:#8a5700;border-radius:8px;margin-left:4px;font-weight:500}
 .trim{font-size:10px;padding:2px 6px;background:#e8f4fd;color:#185FA5;border-radius:8px;margin-left:4px;font-weight:500}
 .card-actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0ec;flex-wrap:wrap}
@@ -440,6 +452,47 @@ function initChecksFijos(){
   return c;
 }
 
+// Estado de doc: false = pendiente, true = recibido, 'na' = no aplica
+function getDocEstado(sub, doc){
+  return sub.checksFijos[doc];
+}
+
+async function toggleNoAplica(subId, doc){
+  const obra = db.obras.find(x=>x.id===obraActual);
+  const sub = obra.subcontratas.find(s=>s.id===subId);
+  if(!sub) return;
+  sub.checksFijos[doc] = sub.checksFijos[doc]==='na' ? false : 'na';
+  await guardarDB();
+  renderMain();
+}
+
+async function addDocPersonalizado(subId, seccion, inputId){
+  const input = document.getElementById(inputId);
+  const texto = input.value.trim();
+  if(!texto) return;
+  const obra = db.obras.find(x=>x.id===obraActual);
+  const sub = obra.subcontratas.find(s=>s.id===subId);
+  if(!sub) return;
+  if(!sub.docsExtra) sub.docsExtra = {};
+  if(!sub.docsExtra[seccion]) sub.docsExtra[seccion] = [];
+  const docKey = 'EXTRA:'+seccion+':'+texto;
+  sub.docsExtra[seccion].push(texto);
+  sub.checksFijos[docKey] = false;
+  await guardarDB();
+  renderMain();
+}
+
+async function eliminarDocExtra(subId, seccion, texto){
+  const obra = db.obras.find(x=>x.id===obraActual);
+  const sub = obra.subcontratas.find(s=>s.id===subId);
+  if(!sub) return;
+  sub.docsExtra[seccion] = sub.docsExtra[seccion].filter(d=>d!==texto);
+  const docKey = 'EXTRA:'+seccion+':'+texto;
+  delete sub.checksFijos[docKey];
+  await guardarDB();
+  renderMain();
+}
+
 function initChecksMensual(){
   // {docName: {2024_0: true, 2024_1: false, ...}}
   const c={};
@@ -659,11 +712,15 @@ function alertaMes(obra){
 // ESTADÍSTICAS
 // ============================================================
 function calcStats(sub){
-  const fijos = Object.values(sub.checksFijos).filter(Boolean).length;
+  const vals = Object.values(sub.checksFijos);
+  const fijos = vals.filter(v=>v===true).length;
+  const naCount = vals.filter(v=>v==='na').length;
+  const extrasTotal = sub.docsExtra ? Object.values(sub.docsExtra).reduce((a,v)=>a+v.length,0) : 0;
+  const totalFijos = TOTAL_FIJOS + extrasTotal - naCount;
   const mesKey_ = mesKey(ANO_ACTUAL, MES_ACTUAL);
   const mensualOk = DOCS_MENSUAL.filter(d=>sub.checksMensual[d]?.[mesKey_]).length;
   const totalMensualMes = DOCS_MENSUAL.length;
-  return {fijos, totalFijos: TOTAL_FIJOS, mensualOk, totalMensualMes};
+  return {fijos, totalFijos: Math.max(totalFijos,0), mensualOk, totalMensualMes};
 }
 
 function colores(pct){
@@ -810,33 +867,49 @@ function renderMain(){
 
       let bodyHtml = '';
       if(sub.open){
+        // Función auxiliar para renderizar una sección de docs fijos
+        const renderSeccion = (titulo, docs, secId) => {
+          let s = `<div class="sec-title">${titulo}</div>`;
+          // Docs estándar
+          docs.forEach(doc=>{
+            const estado = sub.checksFijos[doc];
+            const on = estado === true;
+            const na = estado === 'na';
+            s += `<div class="doc${on?' on':''}${na?' na':''} doc-fijo" data-sub="${sub.id}" data-doc='${JSON.stringify(doc)}'>
+              <div class="cb${on?' on':''}${na?' na':''}">${on?'✓':na?'—':''}</div>
+              <span class="doc-label">${doc}</span>
+              <button class="doc-na-btn" onclick="event.stopPropagation();toggleNoAplica('${sub.id}',${JSON.stringify(doc)})">${na?'Reactivar':'No aplica'}</button>
+            </div>`;
+          });
+          // Docs personalizados de esta sección
+          const extras = sub.docsExtra?.[secId] || [];
+          extras.forEach(doc=>{
+            const docKey = 'EXTRA:'+secId+':'+doc;
+            const estado = sub.checksFijos[docKey];
+            const on = estado === true;
+            const na = estado === 'na';
+            s += `<div class="doc${on?' on':''}${na?' na':''} doc-fijo" data-sub="${sub.id}" data-doc='${JSON.stringify(docKey)}'>
+              <div class="cb${on?' on':''}${na?' na':''}">${on?'✓':na?'—':''}</div>
+              <span class="doc-label">${doc}</span>
+              <span class="doc-custom-del" onclick="event.stopPropagation();eliminarDocExtra('${sub.id}','${secId}',${JSON.stringify(doc)})" title="Eliminar">✕</span>
+              <button class="doc-na-btn" onclick="event.stopPropagation();toggleNoAplica('${sub.id}',${JSON.stringify(docKey)})">${na?'Reactivar':'No aplica'}</button>
+            </div>`;
+          });
+          // Fila para añadir doc personalizado
+          const inputId = 'add-'+sub.id+'-'+secId;
+          s += `<div class="add-doc-row">
+            <input class="add-doc-input" id="${inputId}" placeholder="+ Añadir documento personalizado…" onkeydown="if(event.key==='Enter')addDocPersonalizado('${sub.id}','${secId}','${inputId}')"/>
+            <button class="add-doc-btn" onclick="addDocPersonalizado('${sub.id}','${secId}','${inputId}')">Añadir</button>
+          </div>`;
+          return s;
+        };
+
         // EMPRESA
-        bodyHtml += '<div class="sec-title">📁 Documentación de empresa</div>';
-        DOCS_EMPRESA.forEach(doc=>{
-          const on = sub.checksFijos[doc];
-          bodyHtml += `<div class="doc${on?' on':''} doc-fijo" data-sub="${sub.id}" data-doc='${JSON.stringify(doc)}'>
-            <div class="cb${on?' on':''} cb-ptr">${on?'✓':''}</div>
-            <span class="doc-label doc-ptr">${doc}</span>
-          </div>`;
-        });
+        bodyHtml += renderSeccion('📁 Documentación de empresa', DOCS_EMPRESA, 'empresa');
         // TRABAJADORES
-        bodyHtml += '<div class="sec-title">👷 Documentación de trabajadores</div>';
-        DOCS_TRABAJADORES.forEach(doc=>{
-          const on = sub.checksFijos[doc];
-          bodyHtml += `<div class="doc${on?' on':''} doc-fijo" data-sub="${sub.id}" data-doc='${JSON.stringify(doc)}'>
-            <div class="cb${on?' on':''} cb-ptr">${on?'✓':''}</div>
-            <span class="doc-label doc-ptr">${doc}</span>
-          </div>`;
-        });
+        bodyHtml += renderSeccion('👷 Documentación de trabajadores', DOCS_TRABAJADORES, 'trabajadores');
         // MAQUINARIA
-        bodyHtml += '<div class="sec-title">🏗️ Maquinaria y equipos</div>';
-        DOCS_MAQUINARIA.forEach(doc=>{
-          const on = sub.checksFijos[doc];
-          bodyHtml += `<div class="doc${on?' on':''} doc-fijo" data-sub="${sub.id}" data-doc='${JSON.stringify(doc)}'>
-            <div class="cb${on?' on':''} cb-ptr">${on?'✓':''}</div>
-            <span class="doc-label doc-ptr">${doc}</span>
-          </div>`;
-        });
+        bodyHtml += renderSeccion('🏗️ Maquinaria y equipos', DOCS_MAQUINARIA, 'maquinaria');
         // MENSUAL
         bodyHtml += `<div class="sec-title">📅 Documentación mensual 
           <span style="font-size:10px;padding:2px 7px;border-radius:8px;background:${mesOk?'#d4f5ea':'#fce8e8'};color:${mesOk?'#1D9E75':'#a32d2d'};font-weight:600">
