@@ -3,23 +3,20 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Gestor de Subcontratas de Obra</title>
+<title>Gestor de Subcontratas</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh;font-size:14px}
-a{text-decoration:none;color:inherit}
-button{cursor:pointer;font-family:inherit;font-size:13px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;padding:7px 13px;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
+button{cursor:pointer;font-family:inherit;font-size:13px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;padding:7px 13px;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
 button:hover{background:#f0f0ec}
 button.primary{background:#1a1a1a;color:#fff;border-color:transparent}
 button.primary:hover{background:#333}
 button.danger{color:#a32d2d;border-color:#f0c0c0}
 button.danger:hover{background:#fff5f5}
 button.sm{font-size:12px;padding:5px 10px}
-input,select,textarea{font-family:inherit;font-size:13px;width:100%;padding:8px 11px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;outline:none}
-input:focus,select:focus,textarea:focus{border-color:#666}
+input,select{font-family:inherit;font-size:13px;width:100%;padding:8px 11px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;outline:none}
+input:focus,select:focus{border-color:#666}
 label{font-size:12px;color:#666;display:block;margin-bottom:4px}
-
-/* LAYOUT */
 .sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:#fff;border-right:1px solid #e5e5e0;display:flex;flex-direction:column;z-index:20}
 .sidebar-head{padding:16px;border-bottom:1px solid #e5e5e0}
 .sidebar-head h1{font-size:14px;font-weight:700;margin-bottom:12px}
@@ -27,25 +24,18 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 .obra-item{padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:#555;display:flex;align-items:center;gap:8px;margin-bottom:2px}
 .obra-item:hover{background:#f5f5f3}
 .obra-item.active{background:#1a1a1a;color:#fff;font-weight:500}
-.obra-item .obra-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0}
+.obra-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0}
 .obra-item.active .obra-dot{background:#4ade80}
 .sidebar-foot{padding:12px;border-top:1px solid #e5e5e0}
 .main{margin-left:240px;min-height:100vh}
 .topbar{background:#fff;border-bottom:1px solid #e5e5e0;padding:13px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
 .topbar h2{font-size:15px;font-weight:600;flex:1}
-.container{max-width:800px;margin:0 auto;padding:20px 20px}
-
-/* STATS */
+.container{max-width:820px;margin:0 auto;padding:20px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
 .stat{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 14px}
 .stat-n{font-size:22px;font-weight:700}
 .stat-l{font-size:11px;color:#888;margin-top:2px}
-
-/* ALERTA MES */
 .alert-mes{background:#FFF8E6;border:1px solid #F5C842;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px}
-.alert-mes .alert-icon{font-size:20px}
-
-/* CARDS */
 .card{background:#fff;border:1px solid #e5e5e0;border-radius:12px;margin-bottom:10px;overflow:hidden}
 .card-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none}
 .card-head:hover{background:#fafaf8}
@@ -53,132 +43,97 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 .card-info{flex:1;min-width:0}
 .card-name{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .card-sub{font-size:12px;color:#888;margin-top:1px}
+.fecha-alta{font-size:11px;color:#aaa;margin-top:2px}
+.fecha-alta span{color:#1D9E75;font-weight:500}
 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px}
-.chevron{font-size:11px;color:#aaa;transition:transform .2s;flex-shrink:0}
+.chevron{font-size:11px;color:#aaa;flex-shrink:0}
 .card-body{padding:0 16px 16px;border-top:1px solid #f0f0ec}
 .bar-wrap{height:4px;background:#f0f0ec;border-radius:2px;margin:14px 0}
 .bar{height:4px;border-radius:2px;transition:width .4s}
-.sec-title{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 7px;display:flex;align-items:center;gap:6px}
-.doc{display:flex;align-items:center;gap:9px;padding:5px 6px;border-radius:6px;cursor:pointer}
-.doc:hover{background:#f8f8f5}
-.cb{width:17px;height:17px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s;pointer-events:none}
-.cb.on{background:#1D9E75;border-color:#1D9E75}
-.cb.na{background:#ccc;border-color:#ccc}
-.doc-label{font-size:13px;color:#555;line-height:1.5;pointer-events:none;flex:1}
-.doc.on .doc-label{text-decoration:line-through;color:#bbb}
-.doc.na .doc-label{text-decoration:line-through;color:#bbb;font-style:italic}
-.doc-na-btn{font-size:10px;padding:2px 7px;border-radius:10px;border:1px solid #e0e0da;background:#f8f8f5;color:#999;cursor:pointer;font-family:inherit;flex-shrink:0;pointer-events:all;white-space:nowrap}
+.sec-title{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 7px;display:flex;align-items:center;justify-content:space-between}
+/* DOCUMENTOS */
+.doc-row{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:6px;cursor:pointer}
+.doc-row:hover{background:#f8f8f5}
+.doc-row.na{cursor:default}
+.doc-row.na:hover{background:transparent}
+.doc-cb{width:17px;height:17px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s}
+.doc-cb.ok{background:#1D9E75;border-color:#1D9E75}
+.doc-cb.na{background:#ccc;border-color:#ccc}
+.doc-txt{font-size:13px;color:#555;flex:1;line-height:1.4}
+.doc-row.ok .doc-txt{text-decoration:line-through;color:#bbb}
+.doc-row.na .doc-txt{font-style:italic;color:#bbb}
+.doc-na-btn{font-size:10px;padding:2px 7px;border-radius:10px;border:1px solid #e0e0da;background:#f8f8f5;color:#999;cursor:pointer;font-family:inherit;flex-shrink:0;white-space:nowrap}
 .doc-na-btn:hover{background:#f0f0ec;color:#555}
-.doc.na .doc-na-btn{background:#f0f0ec;color:#777;border-color:#ccc}
-.add-doc-row{display:flex;align-items:center;gap:6px;padding:6px 6px;margin-top:4px}
-.add-doc-input{flex:1;font-size:12px;padding:5px 9px;border-radius:6px;border:1px solid #e0e0da;background:#fafaf8;color:#1a1a1a}
+.doc-del-btn{font-size:11px;color:#ddd;cursor:pointer;flex-shrink:0;padding:2px 4px;background:none;border:none}
+.doc-del-btn:hover{color:#a32d2d}
+.add-doc-row{display:flex;align-items:center;gap:6px;padding:6px 0;margin-top:2px}
+.add-doc-input{flex:1;font-size:12px;padding:5px 9px;border-radius:6px;border:1px solid #e0e0da;background:#fafaf8}
 .add-doc-input:focus{border-color:#888;outline:none;background:#fff}
-.add-doc-btn{font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;cursor:pointer;font-family:inherit;flex-shrink:0}
-.add-doc-btn:hover{background:#f0f0ec}
-.doc-custom-del{font-size:11px;color:#ccc;cursor:pointer;pointer-events:all;padding:2px 4px;flex-shrink:0}
-.doc-custom-del:hover{color:#a32d2d}
-.tm{font-size:10px;padding:2px 6px;background:#fef3e2;color:#8a5700;border-radius:8px;margin-left:4px;font-weight:500}
-.trim{font-size:10px;padding:2px 6px;background:#e8f4fd;color:#185FA5;border-radius:8px;margin-left:4px;font-weight:500}
-.card-actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0ec;flex-wrap:wrap}
-
-/* MENSUAL GRID */
-.mes-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+/* MENSUAL */
 .mes-section{margin-top:8px}
-.mes-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.mes-pill{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid #e0e0da;background:#f8f8f5;color:#666;cursor:pointer;font-family:inherit;transition:all .15s;font-weight:500}
-.mes-pill:hover{border-color:#aaa;background:#f0f0ec}
+.mes-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.mes-pill{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid #e0e0da;background:#f8f8f5;color:#666;cursor:pointer;font-family:inherit;font-weight:500;transition:all .15s}
+.mes-pill:hover{border-color:#aaa}
 .mes-pill.activo{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.mes-pill.ok{background:#d4f5ea;border-color:#1D9E75;color:#1D9E75}
+.mes-pill.pend{background:#fff0f0;border-color:#f5c0c0;color:#c04040}
 .mes-panel{background:#fafaf8;border:1px solid #e8e8e0;border-radius:10px;padding:12px 14px}
-.mes-panel-titulo{font-size:12px;font-weight:700;color:#555;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.mes-doc-item{display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid #f0f0ec;cursor:pointer;border-radius:6px}
-.mes-doc-item:last-child{border-bottom:none}
-.mes-doc-item:hover{background:#ececea}
-.mes-doc-cb{width:18px;height:18px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s;pointer-events:none}
-.mes-doc-cb.on{background:#1D9E75;border-color:#1D9E75}
-.mes-doc-txt{font-size:13px;color:#555;flex:1;line-height:1.4;pointer-events:none}
-.mes-doc-item.on .mes-doc-txt{text-decoration:line-through;color:#bbb}
-.mes-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.mes-pill{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid #e0e0da;background:#f8f8f5;color:#666;cursor:pointer;font-family:inherit;transition:all .15s;font-weight:500}
-.mes-pill:hover{border-color:#aaa;background:#f0f0ec}
-.mes-pill.activo{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.mes-panel{background:#fafaf8;border:1px solid #e8e8e0;border-radius:10px;padding:12px 14px}
-.mes-panel-titulo{font-size:12px;font-weight:700;color:#555;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.mes-doc-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f0ec;cursor:pointer;border-radius:6px}
-.mes-doc-item:last-child{border-bottom:none}
-.mes-doc-item:hover{background:#f0f0ec;margin:0 -6px;padding:7px 6px}
-.mes-doc-cb{width:18px;height:18px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .1s}
-.mes-doc-cb.on{background:#1D9E75;border-color:#1D9E75}
-.mes-doc-txt{font-size:13px;color:#555;flex:1;line-height:1.4}
-.mes-doc-item.on .mes-doc-txt{text-decoration:line-through;color:#bbb}
-
-/* FECHA ALTA */
-.fecha-alta{font-size:11px;color:#aaa;margin-top:2px}
-.fecha-alta span{color:#1D9E75;font-weight:500}
-
+.mes-panel-head{font-size:12px;font-weight:700;color:#555;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.mes-doc-row{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:6px;cursor:pointer;border-bottom:1px solid #f0f0ec}
+.mes-doc-row:last-child{border-bottom:none}
+.mes-doc-row:hover{background:#f0f0ec}
+.mes-doc-row.ok .mes-doc-txt{text-decoration:line-through;color:#bbb}
+.mes-doc-cb{width:17px;height:17px;border:1.5px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff}
+.mes-doc-cb.ok{background:#1D9E75;border-color:#1D9E75}
+.mes-doc-txt{font-size:13px;color:#555;flex:1}
+/* ACCIONES */
+.card-actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0ec}
 /* EMPTY */
 .empty{text-align:center;padding:3rem 1rem;color:#aaa}
 .empty-icon{font-size:40px;margin-bottom:12px}
 .empty p{font-size:14px;line-height:1.8}
-
-/* OVERLAY / MODAL */
+/* MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center;padding:20px}
 .overlay.on{display:flex}
-.modal{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,0.18);max-height:90vh;overflow-y:auto}
+.modal{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(0,0,0,0.18);max-height:90vh;overflow-y:auto}
 .modal h2{font-size:15px;font-weight:700;margin-bottom:16px}
-.field{margin-bottom:13px}
-.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
-.proveedor-search{margin-bottom:10px}
-.prov-sugg{background:#f8f8f5;border:1px solid #e5e5e0;border-radius:8px;max-height:150px;overflow-y:auto;margin-top:4px;display:none}
+.field{margin-bottom:12px}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.tab-bar{display:flex;border-bottom:1px solid #e5e5e0;margin-bottom:14px}
+.tab{padding:8px 14px;font-size:13px;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:#1a1a1a;font-weight:600;border-bottom-color:#1a1a1a}
+.prov-sugg{background:#f8f8f5;border:1px solid #e5e5e0;border-radius:8px;max-height:160px;overflow-y:auto;margin-top:4px;display:none}
 .prov-sugg.on{display:block}
 .prov-sugg-item{padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0ec}
 .prov-sugg-item:last-child{border-bottom:none}
 .prov-sugg-item:hover{background:#f0f0ec}
-.prov-sugg-item .prov-g{font-size:11px;color:#aaa}
-.tab-bar{display:flex;border-bottom:1px solid #e5e5e0;margin-bottom:16px}
-.tab{padding:8px 14px;font-size:13px;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px}
-.tab.active{color:#1a1a1a;font-weight:600;border-bottom-color:#1a1a1a}
-
-/* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:13px;padding:10px 20px;border-radius:20px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1}
-
-/* PANTALLA INICIO */
-.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;color:#aaa}
-.welcome h3{font-size:16px;font-weight:600;color:#555;margin-bottom:8px}
-.welcome p{font-size:13px;line-height:1.7;max-width:320px;margin-bottom:20px}
-
-/* RESPONSIVE */
-@media(max-width:640px){
-  .sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap}
-  .main{margin-left:0}
-  .stats{grid-template-columns:repeat(2,1fr)}
-}
-.note{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 16px;font-size:12px;color:#888;margin-top:12px;line-height:1.7}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* OBRAS VACÍAS */
+.prov-g{font-size:11px;color:#aaa}
+.prov-sel-box{display:none;background:#f0faf5;border:1px solid #1D9E75;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px}
 .no-obra{display:flex;align-items:center;justify-content:center;min-height:80vh}
 .no-obra-inner{text-align:center;max-width:320px}
 .no-obra-inner h3{font-size:18px;font-weight:700;margin-bottom:8px}
 .no-obra-inner p{font-size:13px;color:#888;line-height:1.7;margin-bottom:20px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:13px;padding:10px 20px;border-radius:20px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.note{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 16px;font-size:12px;color:#888;margin-top:12px;line-height:1.7}
+.spinner{width:28px;height:28px;border:3px solid #e0e0e0;border-top-color:#1a1a1a;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR OBRAS -->
 <div class="sidebar">
   <div class="sidebar-head">
     <h1>📋 Subcontratas</h1>
-    <button class="primary" style="width:100%;justify-content:center" onclick="abrirModalObra(null)">+ Nueva obra</button>
+    <button class="primary" id="btn-nueva-obra" style="width:100%;justify-content:center">+ Nueva obra</button>
   </div>
   <div class="obra-list" id="obra-list"></div>
   <div class="sidebar-foot">
-    <button style="width:100%;justify-content:center;font-size:12px;color:#888" onclick="abrirModalProveedores()">👷 Base de proveedores</button>
+    <button id="btn-base-prov" style="width:100%;justify-content:center;font-size:12px;color:#888">👷 Base de proveedores</button>
   </div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
   <div class="topbar">
     <h2 id="obra-titulo">Selecciona una obra</h2>
@@ -189,8 +144,8 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
       <div class="no-obra-inner">
         <div style="font-size:48px;margin-bottom:12px">🏗️</div>
         <h3>Ninguna obra seleccionada</h3>
-        <p>Crea tu primera obra en el panel izquierdo para empezar a gestionar las subcontratas.</p>
-        <button class="primary" onclick="abrirModalObra(null)">+ Crear primera obra</button>
+        <p>Crea tu primera obra en el panel izquierdo.</p>
+        <button class="primary" id="btn-primera-obra">+ Crear primera obra</button>
       </div>
     </div>
   </div>
@@ -198,60 +153,59 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 
 <!-- MODAL OBRA -->
 <div class="overlay" id="modal-obra">
-  <div class="modal" onclick="event.stopPropagation()">
-    <h2 id="modal-obra-h">Nueva obra</h2>
-    <div class="field"><label>Nombre de la obra *</label><input id="obra-n" placeholder="Ej: Edificio Calle Mayor 12"/></div>
+  <div class="modal">
+    <h2 id="modal-obra-titulo">Nueva obra</h2>
+    <div class="field"><label>Nombre *</label><input id="obra-n" placeholder="Ej: Edificio Calle Mayor 12"/></div>
     <div class="field"><label>Dirección</label><input id="obra-dir" placeholder="Calle, número, localidad"/></div>
     <div class="field"><label>Promotor / Cliente</label><input id="obra-prom" placeholder="Nombre del promotor"/></div>
     <div class="field"><label>Fecha de inicio</label><input id="obra-fecha" type="date"/></div>
     <div class="mfoot">
-      <button onclick="cerrarModales()">Cancelar</button>
-      <button class="primary" onclick="guardarObra()">Guardar obra</button>
+      <button id="btn-cancelar-obra">Cancelar</button>
+      <button class="primary" id="btn-guardar-obra">Guardar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL AÑADIR PROVEEDOR A OBRA -->
+<!-- MODAL PROVEEDOR -->
 <div class="overlay" id="modal-prov">
-  <div class="modal" onclick="event.stopPropagation()">
-    <h2 id="modal-prov-h">Añadir subcontrata</h2>
+  <div class="modal">
+    <h2>Añadir subcontrata</h2>
     <div class="tab-bar">
-      <div class="tab active" id="tab-existente" onclick="switchTab('existente')">Desde base de datos</div>
-      <div class="tab" id="tab-nuevo" onclick="switchTab('nuevo')">Nueva empresa</div>
+      <div class="tab active" id="tab-existente">Desde base de datos</div>
+      <div class="tab" id="tab-nuevo">Nueva empresa</div>
     </div>
     <div id="panel-existente">
       <div class="field">
         <label>Buscar empresa</label>
-        <input id="prov-search" placeholder="Escribe el nombre…" oninput="filtrarProveedores()" autocomplete="off"/>
+        <input id="prov-search" placeholder="Escribe el nombre…" autocomplete="off"/>
         <div class="prov-sugg" id="prov-sugg"></div>
       </div>
-      <div id="prov-seleccionado" style="display:none;background:#f0faf5;border:1px solid #1D9E75;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px">
-        <strong id="prov-sel-nombre"></strong><br><span id="prov-sel-gremio" style="color:#888"></span>
+      <div class="prov-sel-box" id="prov-sel-box">
+        <strong id="prov-sel-nombre"></strong><br>
+        <span id="prov-sel-gremio" style="color:#888;font-size:12px"></span>
       </div>
     </div>
     <div id="panel-nuevo" style="display:none">
-      <div class="field"><label>Nombre de la empresa *</label><input id="np-nombre" placeholder="Ej: Instalaciones García S.L."/></div>
+      <div class="field"><label>Nombre *</label><input id="np-nombre" placeholder="Ej: Instalaciones García S.L."/></div>
       <div class="field"><label>Gremio / actividad</label><input id="np-gremio" placeholder="Electricidad, Fontanería…"/></div>
-      <div class="field"><label>Persona de contacto</label><input id="np-contacto" placeholder="Nombre y cargo"/></div>
+      <div class="field"><label>Contacto</label><input id="np-contacto" placeholder="Nombre y cargo"/></div>
       <div class="field"><label>Email</label><input id="np-email" type="email" placeholder="email@empresa.com"/></div>
     </div>
     <div class="field"><label>Fecha de alta en esta obra *</label><input id="prov-fecha-alta" type="date"/></div>
     <div class="mfoot">
-      <button onclick="cerrarModales()">Cancelar</button>
-      <button class="primary" onclick="guardarProveedorEnObra()">Añadir a la obra</button>
+      <button id="btn-cancelar-prov">Cancelar</button>
+      <button class="primary" id="btn-guardar-prov">Añadir a la obra</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL BASE DE PROVEEDORES -->
-<div class="overlay" id="modal-base-prov">
-  <div class="modal" onclick="event.stopPropagation()">
+<!-- MODAL BASE PROVEEDORES -->
+<div class="overlay" id="modal-base">
+  <div class="modal">
     <h2>Base de proveedores</h2>
-    <p style="font-size:12px;color:#888;margin-bottom:14px">Empresas guardadas. Se añaden automáticamente al dar de alta una nueva subcontrata en cualquier obra.</p>
-    <div id="base-prov-list" style="max-height:320px;overflow-y:auto"></div>
-    <div class="mfoot">
-      <button onclick="cerrarModales()">Cerrar</button>
-    </div>
+    <p style="font-size:12px;color:#888;margin-bottom:14px">Todas las empresas registradas en el sistema.</p>
+    <div id="base-prov-lista" style="max-height:340px;overflow-y:auto"></div>
+    <div class="mfoot"><button id="btn-cerrar-base">Cerrar</button></div>
   </div>
 </div>
 
@@ -259,141 +213,583 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 
 <script>
 // ============================================================
-// DATOS
+// CONSTANTES
 // ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbzdJDNm_ImXIJN0-DKsSXbLnKkkHo9g9zOLRmheM347FYnKib9EM5MkSU3MJpH0t2Yg/exec';
+
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const HOY = new Date();
-const MES_ACTUAL = HOY.getMonth(); // 0-11
-const ANO_ACTUAL = HOY.getFullYear();
-const MES_LABEL = MESES[MES_ACTUAL] + ' ' + ANO_ACTUAL;
+const MES_ACT = HOY.getMonth();
+const ANO_ACT = HOY.getFullYear();
+const MES_LABEL = MESES[MES_ACT] + ' ' + ANO_ACT;
 
-const DOCS_EMPRESA = [
-  "Escritura de constitución y poderes del representante legal",
-  "CIF de la empresa",
-  "Alta en el IAE (epígrafe correspondiente)",
-  "Póliza de Responsabilidad Civil vigente y último recibo",
-  "Póliza Seguro de Convenio (accidentes/vida) y último recibo",
-  "Adhesión a la Mutua Colaboradora con la Seguridad Social",
-  "REA (Registro de Empresas Acreditadas) en vigor",
-  "Evaluación de Riesgos y Planificación Actividad Preventiva",
-  "Modalidad preventiva acreditada (SPP, SPA o mancomunado)",
-  "Plan de Seguridad y Salud / adhesión al plan del contratista",
-  "Certificado aprobación PSS por Coordinación de Seguridad"
+const DOCS_EMP = [
+  'Escritura de constitución y poderes del representante legal',
+  'CIF de la empresa',
+  'Alta en el IAE (epígrafe correspondiente)',
+  'Póliza de Responsabilidad Civil vigente y último recibo',
+  'Póliza Seguro de Convenio (accidentes/vida) y último recibo',
+  'Adhesión a la Mutua Colaboradora con la Seguridad Social',
+  'REA (Registro de Empresas Acreditadas) en vigor',
+  'Evaluación de Riesgos y Planificación Actividad Preventiva',
+  'Modalidad preventiva acreditada (SPP, SPA o mancomunado)',
+  'Plan de Seguridad y Salud / adhesión al plan del contratista',
+  'Certificado aprobación PSS por Coordinación de Seguridad'
+];
+const DOCS_TRB = [
+  'DNI / NIE en vigor',
+  'Contrato de trabajo en vigor y categoría profesional',
+  'Certificado de aptitud médica vigente',
+  'Ficha de entrega de EPIs firmada por el trabajador',
+  'Formación PRL mínimo 20 h (Convenio Construcción)',
+  'Formación específica trabajos especiales (si procede)',
+  'Acreditación Recurso Preventivo (si aplica)',
+  'Tarjeta Profesional de la Construcción (TPC) en vigor',
+  'Acuse recibo Art. 18 LPRL — información riesgos de la obra',
+  'Acuse recibo Art. 19 LPRL — formación e instrucciones de seguridad'
+];
+const DOCS_MAQ = [
+  'Ficha técnica, marcado CE y declaración de conformidad CE',
+  'Certificado última revisión / ITV y seguro del equipo vigente',
+  'Certificado de operador / carnet del trabajador que lo maneja'
+];
+const DOCS_MEN = [
+  'Certificado TGSS corriente de pago — mes en curso',
+  'Certificado corriente de pago AEAT',
+  'RNT (Relación Nominal de Trabajadores) mes anterior',
+  'RLC (Recibo de Liquidación de Cotizaciones) mes anterior',
+  'Justificante pago cotizaciones SS (ITA) mes anterior',
+  'Partes de presencia — trabajadores en obra mes anterior',
+  'Justificante de pago de salarios mes anterior',
+  'Acta de charla / reunión de seguridad',
+  'Registro de inspecciones de equipos y maquinaria'
 ];
 
-const DOCS_TRABAJADORES = [
-  "DNI / NIE en vigor",
-  "Contrato de trabajo en vigor y categoría profesional",
-  "Certificado de aptitud médica vigente",
-  "Ficha de entrega de EPIs firmada por el trabajador",
-  "Formación PRL mínimo 20 h (Convenio Construcción)",
-  "Formación específica trabajos especiales (si procede)",
-  "Acreditación Recurso Preventivo (si aplica)",
-  "Tarjeta Profesional de la Construcción (TPC) en vigor",
-  "Acuse recibo Art. 18 LPRL — información riesgos de la obra",
-  "Acuse recibo Art. 19 LPRL — formación e instrucciones de seguridad"
+const SECCIONES = [
+  {id:'emp', label:'📁 Documentación de empresa', docs: DOCS_EMP},
+  {id:'trb', label:'👷 Documentación de trabajadores', docs: DOCS_TRB},
+  {id:'maq', label:'🏗️ Maquinaria y equipos', docs: DOCS_MAQ}
 ];
 
-const DOCS_MENSUAL = [
-  "Certificado TGSS corriente de pago — mes en curso",
-  "Certificado corriente de pago AEAT",
-  "RNT (Relación Nominal de Trabajadores) mes anterior",
-  "RLC (Recibo de Liquidación de Cotizaciones) mes anterior",
-  "Justificante pago cotizaciones SS (ITA) mes anterior",
-  "Partes de presencia — trabajadores en obra mes anterior",
-  "Justificante de pago de salarios mes anterior",
-  "Acta de charla / reunión de seguridad",
-  "Registro de inspecciones de equipos y maquinaria"
+const PAL = [
+  ['#185FA5','#ddeeff'],['#1D9E75','#d4f5ea'],['#993C1D','#fce8e0'],
+  ['#534AB7','#eceafc'],['#3B6D11','#e4f2d4'],['#BA7517','#fef3d4'],['#993556','#fce8f0']
 ];
 
-const DOCS_MAQUINARIA = [
-  "Ficha técnica, marcado CE y declaración de conformidad CE",
-  "Certificado última revisión / ITV y seguro del equipo vigente",
-  "Certificado de operador / carnet del trabajador que lo maneja"
-];
-
-const TOTAL_FIJOS = DOCS_EMPRESA.length + DOCS_TRABAJADORES.length + DOCS_MAQUINARIA.length;
-
+// ============================================================
+// ESTADO
+// ============================================================
 let db = {obras:[], proveedores:[]};
 let obraActual = null;
-let tabActual = 'existente';
+let tabProv = 'existente';
 let provSelId = null;
+let obraEditId = null;
+let subEditId = null;
+let mesVisto = {}; // {subId: 'ANO_MES'}
 
 // ============================================================
 // PERSISTENCIA
 // ============================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbzdJDNm_ImXIJN0-DKsSXbLnKkkHo9g9zOLRmheM347FYnKib9EM5MkSU3MJpH0t2Yg/exec';
-
-function mostrarCargando(msg){
-  document.getElementById('main-content').innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;color:#aaa">
-      <div style="width:32px;height:32px;border:3px solid #e0e0e0;border-top-color:#1a1a1a;border-radius:50%;animation:spin 0.8s linear infinite"></div>
-      <div style="font-size:13px">${msg}</div>
-    </div>`;
-}
-
-async function cargar(){
-  mostrarCargando('Cargando datos compartidos…');
+async function cargarDB() {
   try {
     const r = await fetch(API_URL + '?action=load');
     const text = await r.text();
     const parsed = JSON.parse(text);
-    if(parsed && typeof parsed === 'object' && !parsed.error){
-      db = parsed;
-    }
-  } catch(e){
-    console.warn('Error cargando de Sheets, usando local:', e);
-    try{
-      const s = localStorage.getItem('gestor_obras_v1');
-      if(s) db = JSON.parse(s);
-    } catch(e2){}
-  }
-  if(!db.obras) db.obras = [];
-  if(!db.proveedores) db.proveedores = [];
-}
-
-async function guardarDB(){
-  // Guardar local inmediatamente (respaldo)
-  try{ localStorage.setItem('gestor_obras_v1', JSON.stringify(db)); } catch(e){}
-  // Guardar en Google Sheets
+    if (parsed && parsed.obras) { db = parsed; return; }
+  } catch(e) { console.warn('Sheets error:', e); }
   try {
-    await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify(db)
-    });
-  } catch(e){
-    console.warn('Error guardando en Sheets:', e);
-    toast('⚠️ Sin conexión — guardado solo localmente');
+    const s = localStorage.getItem('gestor_v5');
+    if (s) db = JSON.parse(s);
+  } catch(e) {}
+  if (!db.obras) db.obras = [];
+  if (!db.proveedores) db.proveedores = [];
+}
+
+async function guardarDB() {
+  try { localStorage.setItem('gestor_v5', JSON.stringify(db)); } catch(e) {}
+  try {
+    await fetch(API_URL, { method:'POST', body: JSON.stringify(db) });
+  } catch(e) {
+    toast('⚠️ Sin conexión — guardado local');
   }
 }
 
 // ============================================================
-// OBRAS
+// UTILIDADES
 // ============================================================
-function abrirModalObra(id){
-  if(id){
-    const o = db.obras.find(x=>x.id===id);
+function mesKey(ano, mes) { return ano + '_' + mes; }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function initSub() {
+  const checks = {};
+  DOCS_EMP.forEach(d => checks[d] = 'pend');
+  DOCS_TRB.forEach(d => checks[d] = 'pend');
+  DOCS_MAQ.forEach(d => checks[d] = 'pend');
+  return {
+    checks,       // pend | ok | na
+    checksM: {},  // {doc: {ANO_MES: bool}}
+    extras: {},   // {secId: [texto,...]}
+    open: true
+  };
+}
+
+function getPal(idx) { return PAL[idx % PAL.length]; }
+
+function getIni(nombre) {
+  return (nombre||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
+}
+
+function calcStats(sub) {
+  let total = 0, ok = 0;
+  // Fijos estándar
+  Object.entries(sub.checks).forEach(([k,v]) => {
+    if (v === 'na') return; // no aplica no cuenta
+    total++;
+    if (v === 'ok') ok++;
+  });
+  // Extras
+  Object.values(sub.extras || {}).forEach(arr => {
+    arr.forEach(doc => {
+      const key = 'X:' + doc;
+      if (sub.checks[key] === 'na') return;
+      total++;
+      if (sub.checks[key] === 'ok') ok++;
+    });
+  });
+  // Mensual mes actual
+  const mk = mesKey(ANO_ACT, MES_ACT);
+  let mOk = 0;
+  DOCS_MEN.forEach(d => { if (sub.checksM[d]?.[mk]) mOk++; });
+  return { ok, total, mOk, mTotal: DOCS_MEN.length };
+}
+
+function colorPct(pct) {
+  if (pct === 100) return ['#1D9E75','#d4f5ea'];
+  if (pct > 0)    return ['#EF9F27','#fef3d4'];
+  return                  ['#E24B4A','#fce8e8'];
+}
+
+function mesesDesdeAlta(sub) {
+  const fa = sub.fechaAlta ? new Date(sub.fechaAlta) : new Date();
+  const lista = [];
+  let a = fa.getFullYear(), m = fa.getMonth();
+  while (a < ANO_ACT || (a === ANO_ACT && m <= MES_ACT)) {
+    lista.push({ano:a, mes:m, label: MESES[m] + (a !== ANO_ACT ? ' ' + a : '')});
+    m++; if (m > 11) { m = 0; a++; }
+  }
+  return lista;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderSidebar() {
+  const el = document.getElementById('obra-list');
+  if (!db.obras.length) {
+    el.innerHTML = '<div style="padding:12px;font-size:12px;color:#aaa;text-align:center">Sin obras</div>';
+    return;
+  }
+  el.innerHTML = '';
+  db.obras.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'obra-item' + (obraActual === o.id ? ' active' : '');
+    div.innerHTML = '<div class="obra-dot"></div><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + o.nombre + '</span>';
+    div.addEventListener('click', () => { obraActual = o.id; renderSidebar(); renderMain(); });
+    el.appendChild(div);
+  });
+}
+
+function renderMain() {
+  const titulo = document.getElementById('obra-titulo');
+  const content = document.getElementById('main-content');
+  const actions = document.getElementById('topbar-actions');
+
+  if (!obraActual) {
+    titulo.textContent = 'Selecciona una obra';
+    actions.innerHTML = '';
+    content.innerHTML = '<div class="no-obra"><div class="no-obra-inner"><div style="font-size:48px;margin-bottom:12px">🏗️</div><h3>Ninguna obra seleccionada</h3><p>Crea o selecciona una obra en el panel izquierdo.</p><button class="primary" id="btn-primera-obra">+ Crear primera obra</button></div></div>';
+    document.getElementById('btn-primera-obra').addEventListener('click', () => abrirModalObra(null));
+    return;
+  }
+
+  const obra = db.obras.find(x => x.id === obraActual);
+  if (!obra) { obraActual = null; renderMain(); return; }
+
+  titulo.textContent = obra.nombre;
+  actions.innerHTML = '';
+  const btnEdit = document.createElement('button');
+  btnEdit.className = 'sm'; btnEdit.textContent = '✎ Editar obra';
+  btnEdit.addEventListener('click', () => abrirModalObra(obra.id));
+  const btnAdd = document.createElement('button');
+  btnAdd.className = 'primary sm'; btnAdd.textContent = '+ Añadir subcontrata';
+  btnAdd.addEventListener('click', () => abrirModalProv());
+  actions.appendChild(btnEdit);
+  actions.appendChild(btnAdd);
+
+  // Stats
+  const tot = obra.subcontratas?.length || 0;
+  const mk = mesKey(ANO_ACT, MES_ACT);
+  let alDia = 0, incompletas = 0, totalOk = 0, totalPos = 0;
+  (obra.subcontratas || []).forEach(sub => {
+    const st = calcStats(sub);
+    const pct = st.total ? Math.round(st.ok / st.total * 100) : 0;
+    const mPct = Math.round(st.mOk / st.mTotal * 100);
+    if (pct === 100 && mPct === 100) alDia++;
+    else incompletas++;
+    totalOk += st.ok + st.mOk;
+    totalPos += st.total + st.mTotal;
+  });
+  const pctGlobal = totalPos ? Math.round(totalOk / totalPos * 100) : 0;
+
+  // Alerta mes
+  const hayMesPend = (obra.subcontratas || []).some(sub => {
+    return DOCS_MEN.some(d => !sub.checksM[d]?.[mk]);
+  });
+  const diasFin = new Date(HOY.getFullYear(), HOY.getMonth()+1, 0).getDate() - HOY.getDate();
+
+  content.innerHTML = '';
+
+  if (hayMesPend) {
+    const al = document.createElement('div');
+    al.className = 'alert-mes';
+    al.innerHTML = '<span style="font-size:20px">🔔</span><span><strong>' +
+      (diasFin <= 5 ? '⚠️ Quedan ' + diasFin + ' días para acabar ' + MES_LABEL + '. ' : '') +
+      'Documentación mensual de ' + MES_LABEL + ' pendiente en algunas subcontratas.</strong></span>';
+    content.appendChild(al);
+  }
+
+  // Stats cards
+  const statsEl = document.createElement('div');
+  statsEl.className = 'stats';
+  statsEl.innerHTML =
+    '<div class="stat"><div class="stat-n">' + tot + '</div><div class="stat-l">Subcontratas</div></div>' +
+    '<div class="stat"><div class="stat-n" style="color:#1D9E75">' + alDia + '</div><div class="stat-l">Al día</div></div>' +
+    '<div class="stat"><div class="stat-n" style="color:#EF9F27">' + incompletas + '</div><div class="stat-l">Incompletas</div></div>' +
+    '<div class="stat"><div class="stat-n">' + pctGlobal + '%</div><div class="stat-l">Completado</div></div>';
+  content.appendChild(statsEl);
+
+  if (!tot) {
+    const emp = document.createElement('div');
+    emp.className = 'empty';
+    emp.innerHTML = '<div class="empty-icon">👷</div><p>Aún no hay subcontratas en esta obra.<br>Pulsa <strong>"+ Añadir subcontrata"</strong> para empezar.</p>';
+    content.appendChild(emp);
+  } else {
+    (obra.subcontratas || []).forEach((sub, si) => {
+      content.appendChild(buildCard(sub, si, obra));
+    });
+  }
+
+  const nota = document.createElement('div');
+  nota.className = 'note';
+  nota.textContent = '💡 Los datos se guardan en la nube y son accesibles desde cualquier ordenador. Para revisar un documento escaneado súbelo en el chat de Claude.';
+  content.appendChild(nota);
+}
+
+function buildCard(sub, si, obra) {
+  const prov = db.proveedores.find(p => p.id === sub.provId) || {nombre:'Empresa', gremio:'', contacto:''};
+  const st = calcStats(sub);
+  const pct = st.total ? Math.round(st.ok / st.total * 100) : 0;
+  const [col, bg] = colorPct(pct);
+  const pal = getPal(si);
+  const fa = sub.fechaAlta ? new Date(sub.fechaAlta).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) : '';
+
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  // CABECERA
+  const head = document.createElement('div');
+  head.className = 'card-head';
+  head.innerHTML =
+    '<div class="avatar" style="background:' + pal[1] + ';color:' + pal[0] + '">' + getIni(prov.nombre) + '</div>' +
+    '<div class="card-info">' +
+      '<div class="card-name">' + prov.nombre + '</div>' +
+      '<div class="card-sub">' + (prov.gremio||'Sin gremio') + (prov.contacto?' · '+prov.contacto:'') + '</div>' +
+      (fa ? '<div class="fecha-alta">Alta: <span>' + fa + '</span></div>' : '') +
+    '</div>' +
+    '<span class="badge" style="background:' + bg + ';color:' + col + '">' + st.ok + '/' + st.total + '</span>' +
+    '<div class="dot" style="background:' + col + '"></div>' +
+    '<span class="chevron">' + (sub.open ? '▲' : '▼') + '</span>';
+  head.addEventListener('click', () => {
+    sub.open = !sub.open;
+    guardarDB();
+    const body = card.querySelector('.card-body');
+    if (body) body.style.display = sub.open ? '' : 'none';
+    head.querySelector('.chevron').textContent = sub.open ? '▲' : '▼';
+  });
+  card.appendChild(head);
+
+  if (!sub.open) return card;
+
+  // CUERPO
+  const body = document.createElement('div');
+  body.className = 'card-body';
+
+  // Barra de progreso
+  const barWrap = document.createElement('div');
+  barWrap.className = 'bar-wrap';
+  barWrap.innerHTML = '<div class="bar" style="width:' + pct + '%;background:' + col + '"></div>';
+  body.appendChild(barWrap);
+
+  // Secciones fijas
+  SECCIONES.forEach(sec => {
+    body.appendChild(buildSeccion(sub, sec, obra));
+  });
+
+  // Sección mensual
+  body.appendChild(buildMensual(sub));
+
+  // Acciones
+  const acts = document.createElement('div');
+  acts.className = 'card-actions';
+  const btnEd = document.createElement('button');
+  btnEd.className = 'sm'; btnEd.textContent = '✎ Editar empresa';
+  btnEd.addEventListener('click', (e) => { e.stopPropagation(); abrirEditarSub(sub.id); });
+  const btnDel = document.createElement('button');
+  btnDel.className = 'sm danger'; btnDel.textContent = '✕ Quitar de obra';
+  btnDel.style.marginLeft = 'auto';
+  btnDel.addEventListener('click', (e) => { e.stopPropagation(); quitarSub(sub.id, obra); });
+  acts.appendChild(btnEd);
+  acts.appendChild(btnDel);
+  body.appendChild(acts);
+
+  card.appendChild(body);
+  return card;
+}
+
+function buildSeccion(sub, sec, obra) {
+  const wrap = document.createElement('div');
+
+  const title = document.createElement('div');
+  title.className = 'sec-title';
+  title.textContent = sec.label;
+  wrap.appendChild(title);
+
+  // Docs estándar
+  sec.docs.forEach(doc => {
+    wrap.appendChild(buildDocRow(sub, doc, null));
+  });
+
+  // Docs extra de esta sección
+  const extras = sub.extras?.[sec.id] || [];
+  extras.forEach(txt => {
+    wrap.appendChild(buildDocRow(sub, txt, sec.id));
+  });
+
+  // Añadir doc personalizado
+  const addRow = document.createElement('div');
+  addRow.className = 'add-doc-row';
+  const inp = document.createElement('input');
+  inp.className = 'add-doc-input';
+  inp.placeholder = '+ Añadir documento personalizado…';
+  const btnAdd = document.createElement('button');
+  btnAdd.className = 'sm'; btnAdd.textContent = 'Añadir';
+  const doAdd = async () => {
+    const txt = inp.value.trim();
+    if (!txt) return;
+    if (!sub.extras) sub.extras = {};
+    if (!sub.extras[sec.id]) sub.extras[sec.id] = [];
+    if (sub.extras[sec.id].includes(txt)) { toast('Ya existe este documento'); return; }
+    sub.extras[sec.id].push(txt);
+    sub.checks['X:' + txt] = 'pend';
+    await guardarDB();
+    renderMain();
+  };
+  btnAdd.addEventListener('click', doAdd);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') doAdd(); });
+  addRow.appendChild(inp);
+  addRow.appendChild(btnAdd);
+  wrap.appendChild(addRow);
+
+  return wrap;
+}
+
+function buildDocRow(sub, doc, extraSecId) {
+  const isExtra = extraSecId !== null;
+  const key = isExtra ? 'X:' + doc : doc;
+  const estado = sub.checks[key] || 'pend';
+
+  const row = document.createElement('div');
+  row.className = 'doc-row' + (estado === 'ok' ? ' ok' : estado === 'na' ? ' na' : '');
+
+  const cb = document.createElement('div');
+  cb.className = 'doc-cb' + (estado === 'ok' ? ' ok' : estado === 'na' ? ' na' : '');
+  cb.textContent = estado === 'ok' ? '✓' : estado === 'na' ? '—' : '';
+
+  const txt = document.createElement('span');
+  txt.className = 'doc-txt';
+  txt.textContent = doc;
+
+  const btnNa = document.createElement('button');
+  btnNa.className = 'doc-na-btn';
+  btnNa.textContent = estado === 'na' ? 'Reactivar' : 'No aplica';
+
+  // Click en la fila = toggle ok/pend (no si es na)
+  row.addEventListener('click', async (e) => {
+    if (e.target === btnNa) return;
+    if (estado === 'na') return;
+    sub.checks[key] = estado === 'ok' ? 'pend' : 'ok';
+    await guardarDB();
+    renderMain();
+  });
+
+  btnNa.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    sub.checks[key] = estado === 'na' ? 'pend' : 'na';
+    await guardarDB();
+    renderMain();
+  });
+
+  row.appendChild(cb);
+  row.appendChild(txt);
+
+  if (isExtra) {
+    const btnDel = document.createElement('button');
+    btnDel.className = 'doc-del-btn'; btnDel.textContent = '✕'; btnDel.title = 'Eliminar';
+    btnDel.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      sub.extras[extraSecId] = sub.extras[extraSecId].filter(d => d !== doc);
+      delete sub.checks[key];
+      await guardarDB();
+      renderMain();
+    });
+    row.appendChild(btnDel);
+  }
+
+  row.appendChild(btnNa);
+  return row;
+}
+
+function buildMensual(sub) {
+  const wrap = document.createElement('div');
+  wrap.className = 'mes-section';
+
+  const meses = mesesDesdeAlta(sub);
+  if (!meses.length) return wrap;
+
+  const mk = mesKey(ANO_ACT, MES_ACT);
+  if (!mesVisto[sub.id]) mesVisto[sub.id] = mk;
+  const mesActivoKey = mesVisto[sub.id];
+  const mesActivo = meses.find(m => mesKey(m.ano, m.mes) === mesActivoKey) || meses[meses.length-1];
+
+  // Título sección
+  const mOk = DOCS_MEN.filter(d => sub.checksM[d]?.[mk]).length;
+  const titleEl = document.createElement('div');
+  titleEl.className = 'sec-title';
+  const badgeCol = mOk === DOCS_MEN.length ? '#1D9E75' : '#E24B4A';
+  const badgeBg  = mOk === DOCS_MEN.length ? '#d4f5ea' : '#fce8e8';
+  titleEl.innerHTML = '<span>📅 Documentación mensual</span>' +
+    '<span style="font-size:10px;padding:2px 8px;border-radius:8px;background:' + badgeBg + ';color:' + badgeCol + ';font-weight:700">' +
+    MES_LABEL + ': ' + mOk + '/' + DOCS_MEN.length + '</span>';
+  wrap.appendChild(titleEl);
+
+  // Pills de meses
+  const selector = document.createElement('div');
+  selector.className = 'mes-selector';
+  meses.forEach(({ano, mes, label}) => {
+    const key = mesKey(ano, mes);
+    const docsOk = DOCS_MEN.filter(d => sub.checksM[d]?.[key]).length;
+    const allOk = docsOk === DOCS_MEN.length;
+    const esMesAct = ano === ANO_ACT && mes === MES_ACT;
+    const isActivo = key === mesActivoKey;
+
+    const pill = document.createElement('button');
+    pill.className = 'mes-pill' + (isActivo ? ' activo' : allOk ? ' ok' : esMesAct ? ' pend' : '');
+    pill.textContent = label + ' ' + (allOk ? '✓' : docsOk + '/' + DOCS_MEN.length);
+    pill.addEventListener('click', () => {
+      mesVisto[sub.id] = key;
+      renderMain();
+    });
+    selector.appendChild(pill);
+  });
+  wrap.appendChild(selector);
+
+  // Panel del mes seleccionado
+  const {ano, mes, label} = mesActivo;
+  const panelKey = mesKey(ano, mes);
+  const panelOk = DOCS_MEN.filter(d => sub.checksM[d]?.[panelKey]).length;
+
+  const panel = document.createElement('div');
+  panel.className = 'mes-panel';
+
+  const panHead = document.createElement('div');
+  panHead.className = 'mes-panel-head';
+  const pcol = panelOk === DOCS_MEN.length ? '#1D9E75' : '#EF9F27';
+  panHead.innerHTML = '<span>📅 ' + label + '</span><span style="color:' + pcol + '">' + panelOk + '/' + DOCS_MEN.length + ' recibidos</span>';
+  panel.appendChild(panHead);
+
+  DOCS_MEN.forEach(doc => {
+    const on = !!sub.checksM[doc]?.[panelKey];
+    const drow = document.createElement('div');
+    drow.className = 'mes-doc-row' + (on ? ' ok' : '');
+
+    const dcb = document.createElement('div');
+    dcb.className = 'mes-doc-cb' + (on ? ' ok' : '');
+    dcb.textContent = on ? '✓' : '';
+
+    const dtxt = document.createElement('span');
+    dtxt.className = 'mes-doc-txt';
+    dtxt.textContent = doc;
+
+    drow.appendChild(dcb);
+    drow.appendChild(dtxt);
+
+    drow.addEventListener('click', async () => {
+      if (!sub.checksM[doc]) sub.checksM[doc] = {};
+      sub.checksM[doc][panelKey] = !sub.checksM[doc][panelKey];
+      await guardarDB();
+      renderMain();
+    });
+
+    panel.appendChild(drow);
+  });
+
+  wrap.appendChild(panel);
+  return wrap;
+}
+
+// ============================================================
+// MODALES
+// ============================================================
+function cerrarModales() {
+  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('on'));
+  obraEditId = null; subEditId = null; provSelId = null;
+}
+
+// Cerrar al click fuera
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) cerrarModales(); });
+});
+
+// MODAL OBRA
+function abrirModalObra(id) {
+  obraEditId = id;
+  const modal = document.getElementById('modal-obra');
+  document.getElementById('modal-obra-titulo').textContent = id ? 'Editar obra' : 'Nueva obra';
+  if (id) {
+    const o = db.obras.find(x => x.id === id);
     document.getElementById('obra-n').value = o.nombre;
     document.getElementById('obra-dir').value = o.direccion||'';
     document.getElementById('obra-prom').value = o.promotor||'';
     document.getElementById('obra-fecha').value = o.fecha||'';
-    document.getElementById('modal-obra-h').textContent = 'Editar obra';
-    document.getElementById('modal-obra').dataset.editId = id;
   } else {
-    ['obra-n','obra-dir','obra-prom','obra-fecha'].forEach(i=>document.getElementById(i).value='');
-    document.getElementById('modal-obra-h').textContent = 'Nueva obra';
-    delete document.getElementById('modal-obra').dataset.editId;
+    ['obra-n','obra-dir','obra-prom','obra-fecha'].forEach(i => document.getElementById(i).value = '');
   }
-  document.getElementById('modal-obra').classList.add('on');
-  setTimeout(()=>document.getElementById('obra-n').focus(),80);
+  modal.classList.add('on');
+  setTimeout(() => document.getElementById('obra-n').focus(), 80);
 }
 
-async function guardarObra(){
+async function guardarObra() {
   const n = document.getElementById('obra-n').value.trim();
-  if(!n){ document.getElementById('obra-n').focus(); return; }
-  const editId = document.getElementById('modal-obra').dataset.editId;
-  if(editId){
-    const o = db.obras.find(x=>x.id===editId);
+  if (!n) { document.getElementById('obra-n').focus(); return; }
+  if (obraEditId) {
+    const o = db.obras.find(x => x.id === obraEditId);
     o.nombre = n;
     o.direccion = document.getElementById('obra-dir').value.trim();
     o.promotor = document.getElementById('obra-prom').value.trim();
@@ -401,7 +797,7 @@ async function guardarObra(){
     toast('Obra actualizada ✓');
   } else {
     const nueva = {
-      id: ''+Date.now(),
+      id: '' + Date.now(),
       nombre: n,
       direccion: document.getElementById('obra-dir').value.trim(),
       promotor: document.getElementById('obra-prom').value.trim(),
@@ -412,618 +808,195 @@ async function guardarObra(){
     obraActual = nueva.id;
     toast('Obra creada ✓');
   }
-  await guardarDB();
   cerrarModales();
+  await guardarDB();
   renderSidebar();
   renderMain();
 }
 
-function renderSidebar(){
-  const list = document.getElementById('obra-list');
-  if(!db.obras.length){
-    list.innerHTML = '<div style="padding:12px;font-size:12px;color:#aaa;text-align:center">Sin obras</div>';
-    return;
-  }
-  list.innerHTML = db.obras.map(o=>`
-    <div class="obra-item ${obraActual===o.id?'active':''}" onclick="selObra('${o.id}')">
-      <div class="obra-dot"></div>
-      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.nombre}</span>
-    </div>
-  `).join('');
-}
-
-function selObra(id){
-  obraActual = id;
-  renderSidebar();
-  renderMain();
-}
-
-// ============================================================
-// PROVEEDORES EN OBRA
-// ============================================================
-const PAL=[['#185FA5','#ddeeff'],['#1D9E75','#d4f5ea'],['#993C1D','#fce8e0'],
-  ['#534AB7','#eceafc'],['#3B6D11','#e4f2d4'],['#BA7517','#fef3d4'],['#993556','#fce8f0']];
-
-function initChecksFijos(){
-  const c={};
-  DOCS_EMPRESA.forEach(d=>c[d]=false);
-  DOCS_TRABAJADORES.forEach(d=>c[d]=false);
-  DOCS_MAQUINARIA.forEach(d=>c[d]=false);
-  return c;
-}
-
-// Estado de doc: false = pendiente, true = recibido, 'na' = no aplica
-function getDocEstado(sub, doc){
-  return sub.checksFijos[doc];
-}
-
-async function toggleNoAplica(subId, doc){
-  const obra = db.obras.find(x=>x.id===obraActual);
-  const sub = obra.subcontratas.find(s=>s.id===subId);
-  if(!sub) return;
-  sub.checksFijos[doc] = sub.checksFijos[doc]==='na' ? false : 'na';
-  await guardarDB();
-  renderMain();
-}
-
-async function addDocPersonalizado(subId, seccion, inputId){
-  const input = document.getElementById(inputId);
-  const texto = input.value.trim();
-  if(!texto) return;
-  const obra = db.obras.find(x=>x.id===obraActual);
-  const sub = obra.subcontratas.find(s=>s.id===subId);
-  if(!sub) return;
-  if(!sub.docsExtra) sub.docsExtra = {};
-  if(!sub.docsExtra[seccion]) sub.docsExtra[seccion] = [];
-  const docKey = 'EXTRA:'+seccion+':'+texto;
-  sub.docsExtra[seccion].push(texto);
-  sub.checksFijos[docKey] = false;
-  await guardarDB();
-  renderMain();
-}
-
-async function eliminarDocExtra(subId, seccion, texto){
-  const obra = db.obras.find(x=>x.id===obraActual);
-  const sub = obra.subcontratas.find(s=>s.id===subId);
-  if(!sub) return;
-  sub.docsExtra[seccion] = sub.docsExtra[seccion].filter(d=>d!==texto);
-  const docKey = 'EXTRA:'+seccion+':'+texto;
-  delete sub.checksFijos[docKey];
-  await guardarDB();
-  renderMain();
-}
-
-function initChecksMensual(){
-  // {docName: {2024_0: true, 2024_1: false, ...}}
-  const c={};
-  DOCS_MENSUAL.forEach(d=>c[d]={});
-  return c;
-}
-
-function mesKey(ano, mes){ return ano+'_'+mes; }
-
-function abrirModalProv(){
-  tabActual = 'existente';
-  provSelId = null;
-  ['np-nombre','np-gremio','np-contacto','np-email','prov-search'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('prov-seleccionado').style.display='none';
+// MODAL PROVEEDOR
+function abrirModalProv() {
+  tabProv = 'existente'; provSelId = null;
+  ['np-nombre','np-gremio','np-contacto','np-email','prov-search'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('prov-sel-box').style.display = 'none';
   document.getElementById('prov-sugg').classList.remove('on');
   document.getElementById('prov-fecha-alta').value = new Date().toISOString().split('T')[0];
-  document.getElementById('modal-prov-h').textContent = 'Añadir subcontrata';
-  switchTab('existente');
+  switchTabProv('existente');
   document.getElementById('modal-prov').classList.add('on');
-  setTimeout(()=>document.getElementById('prov-search').focus(),80);
+  setTimeout(() => document.getElementById('prov-search').focus(), 80);
 }
 
-function switchTab(tab){
-  tabActual = tab;
-  document.getElementById('tab-existente').className = 'tab'+(tab==='existente'?' active':'');
-  document.getElementById('tab-nuevo').className = 'tab'+(tab==='nuevo'?' active':'');
-  document.getElementById('panel-existente').style.display = tab==='existente'?'block':'none';
-  document.getElementById('panel-nuevo').style.display = tab==='nuevo'?'block':'none';
+function switchTabProv(tab) {
+  tabProv = tab;
+  document.getElementById('tab-existente').className = 'tab' + (tab==='existente'?' active':'');
+  document.getElementById('tab-nuevo').className = 'tab' + (tab==='nuevo'?' active':'');
+  document.getElementById('panel-existente').style.display = tab==='existente' ? '' : 'none';
+  document.getElementById('panel-nuevo').style.display = tab==='nuevo' ? '' : 'none';
 }
 
-function filtrarProveedores(){
+function filtrarProveedores() {
   const q = document.getElementById('prov-search').value.trim().toLowerCase();
-  const obra = db.obras.find(x=>x.id===obraActual);
-  const yaEnObra = new Set((obra?.subcontratas||[]).map(s=>s.provId));
-  const filtrados = db.proveedores.filter(p=>
+  const obra = db.obras.find(x => x.id === obraActual);
+  const yaEnObra = new Set((obra?.subcontratas||[]).map(s => s.provId));
+  const res = db.proveedores.filter(p =>
     !yaEnObra.has(p.id) &&
     (p.nombre.toLowerCase().includes(q) || (p.gremio||'').toLowerCase().includes(q))
   );
   const sugg = document.getElementById('prov-sugg');
-  if(!filtrados.length && !q){ sugg.classList.remove('on'); return; }
+  if (!res.length && !q) { sugg.classList.remove('on'); return; }
   sugg.classList.add('on');
-  sugg.innerHTML = filtrados.length
-    ? filtrados.map(p=>`<div class="prov-sugg-item" onclick="selProv('${p.id}')">
-        ${p.nombre}<div class="prov-g">${p.gremio||''}</div>
-      </div>`).join('')
-    : '<div class="prov-sugg-item" style="color:#aaa">Sin resultados</div>';
-}
-
-function selProv(id){
-  provSelId = id;
-  const p = db.proveedores.find(x=>x.id===id);
-  document.getElementById('prov-sel-nombre').textContent = p.nombre;
-  document.getElementById('prov-sel-gremio').textContent = p.gremio||'';
-  document.getElementById('prov-seleccionado').style.display = 'block';
-  document.getElementById('prov-search').value = p.nombre;
-  document.getElementById('prov-sugg').classList.remove('on');
-}
-
-async function guardarProveedorEnObra(){
-  const editSubId = document.getElementById('modal-prov').dataset.editSubId;
-
-  // MODO EDICIÓN
-  if(editSubId){
-    const obra = db.obras.find(x=>x.id===obraActual);
-    const sub = obra.subcontratas.find(s=>s.id===editSubId);
-    const prov = db.proveedores.find(p=>p.id===sub.provId);
-    if(prov && tabActual==='nuevo'){
-      prov.nombre = document.getElementById('np-nombre').value.trim()||prov.nombre;
-      prov.gremio = document.getElementById('np-gremio').value.trim();
-      prov.contacto = document.getElementById('np-contacto').value.trim();
-      prov.email = document.getElementById('np-email').value.trim();
-    }
-    const fa = document.getElementById('prov-fecha-alta').value;
-    if(fa) sub.fechaAlta = fa;
-    delete document.getElementById('modal-prov').dataset.editSubId;
-    await guardarDB(); cerrarModales(); renderMain(); toast('Datos actualizados ✓');
+  sugg.innerHTML = '';
+  if (!res.length) {
+    sugg.innerHTML = '<div class="prov-sugg-item" style="color:#aaa">Sin resultados</div>';
     return;
   }
+  res.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'prov-sugg-item';
+    item.innerHTML = p.nombre + '<div class="prov-g">' + (p.gremio||'') + '</div>';
+    item.addEventListener('click', () => {
+      provSelId = p.id;
+      document.getElementById('prov-search').value = p.nombre;
+      document.getElementById('prov-sel-nombre').textContent = p.nombre;
+      document.getElementById('prov-sel-gremio').textContent = p.gremio||'';
+      document.getElementById('prov-sel-box').style.display = 'block';
+      sugg.classList.remove('on');
+    });
+    sugg.appendChild(item);
+  });
+}
 
-  // MODO ALTA NUEVA
-  const obra = db.obras.find(x=>x.id===obraActual);
-  if(!obra) return;
+async function guardarProveedorEnObra() {
+  const obra = db.obras.find(x => x.id === obraActual);
+  if (!obra) return;
   const fechaAlta = document.getElementById('prov-fecha-alta').value;
-  if(!fechaAlta){ document.getElementById('prov-fecha-alta').focus(); return; }
+  if (!fechaAlta) { document.getElementById('prov-fecha-alta').focus(); return; }
 
   let provId;
-  if(tabActual==='existente'){
-    if(!provSelId){ toast('Selecciona una empresa de la lista'); return; }
+  if (tabProv === 'existente') {
+    if (!provSelId) { toast('Selecciona una empresa de la lista'); return; }
     provId = provSelId;
   } else {
     const nombre = document.getElementById('np-nombre').value.trim();
-    if(!nombre){ document.getElementById('np-nombre').focus(); return; }
-    const ci = db.proveedores.length % PAL.length;
+    if (!nombre) { document.getElementById('np-nombre').focus(); return; }
+    const ci = db.proveedores.length;
     const nuevo = {
-      id: ''+Date.now(),
+      id: '' + Date.now(),
       nombre,
       gremio: document.getElementById('np-gremio').value.trim(),
       contacto: document.getElementById('np-contacto').value.trim(),
       email: document.getElementById('np-email').value.trim(),
-      col: PAL[ci][0], bg: PAL[ci][1]
     };
     db.proveedores.push(nuevo);
     provId = nuevo.id;
   }
 
-  obra.subcontratas.push({
-    id: ''+Date.now()+'x',
-    provId,
-    fechaAlta,
-    checksFijos: initChecksFijos(),
-    checksMensual: initChecksMensual(),
-    open: true
-  });
-  await guardarDB();
+  const sub = { id: '' + Date.now() + 'x', provId, fechaAlta, ...initSub() };
+  obra.subcontratas.push(sub);
   cerrarModales();
+  await guardarDB();
   renderMain();
   toast('Subcontrata añadida ✓');
 }
 
-async function eliminarSubcontrata(subId){
-  if(!confirm('¿Eliminar esta subcontrata de la obra?')) return;
-  const obra = db.obras.find(x=>x.id===obraActual);
-  obra.subcontratas = obra.subcontratas.filter(s=>s.id!==subId);
-  await guardarDB();
-  renderMain();
-  toast('Subcontrata eliminada');
-}
-
-async function toggleFijo(subId, doc){
-  const obra = db.obras.find(x=>x.id===obraActual);
-  const sub = obra.subcontratas.find(s=>s.id===subId);
-  sub.checksFijos[doc] = !sub.checksFijos[doc];
-  await guardarDB();
-  renderMain();
-}
-
-async function toggleMensual(subId, doc, ano, mes){
-  const obra = db.obras.find(x=>x.id===obraActual);
-  const sub = obra.subcontratas.find(s=>s.id===subId);
-  if(!sub.checksMensual[doc]) sub.checksMensual[doc]={};
-  const key = mesKey(ano,mes);
-  sub.checksMensual[doc][key] = !sub.checksMensual[doc][key];
-  await guardarDB();
-  renderMain();
-}
-
-function selMes(subId, mesKeyVal){
-  const obra = db.obras.find(x=>x.id===obraActual);
-  const sub = obra.subcontratas.find(s=>s.id===subId);
-  if(!sub) return;
-  sub._mesVisto = mesKeyVal;
-  renderMain();
-}
-
-// Event delegation para docs mensuales (evita problemas con onclick en innerHTML)
-document.addEventListener('click', async function(e){
-  // Documentos mensuales
-  const mesItem = e.target.closest('.mes-doc-item');
-  if(mesItem){
-    const subId = mesItem.dataset.sub;
-    const doc = JSON.parse(mesItem.dataset.doc);
-    const ano = parseInt(mesItem.dataset.ano);
-    const mes = parseInt(mesItem.dataset.mes);
-    await toggleMensual(subId, doc, ano, mes);
-    return;
-  }
-  // Documentos fijos (empresa, trabajadores, maquinaria)
-  const fijoItem = e.target.closest('.doc-fijo');
-  if(fijoItem){
-    const subId = fijoItem.dataset.sub;
-    const doc = JSON.parse(fijoItem.dataset.doc);
-    await toggleFijo(subId, doc);
-    return;
-  }
-});
-
-async function toggleOpen(subId){
-  const obra = db.obras.find(x=>x.id===obraActual);
-  const sub = obra.subcontratas.find(s=>s.id===subId);
-  if(!sub) return;
-  sub.open = !sub.open;
-  guardarDB(); // no await — no bloqueamos el render por abrir/cerrar
-  renderMain();
-}
-
-// ============================================================
-// ALERTA MES
-// ============================================================
-function hayPendientesMesActual(obra){
-  if(!obra) return false;
-  return obra.subcontratas.some(sub=>{
-    return DOCS_MENSUAL.some(doc=>{
-      const key = mesKey(ANO_ACTUAL, MES_ACTUAL);
-      return !sub.checksMensual[doc]?.[key];
-    });
-  });
-}
-
-function alertaMes(obra){
-  const hoy = new Date();
-  const ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0).getDate();
-  const diasRestantes = ultimoDia - hoy.getDate();
-  const hayPend = hayPendientesMesActual(obra);
-  if(!hayPend) return '';
-  let msg = '';
-  if(diasRestantes <= 5){
-    msg = `⚠️ Quedan ${diasRestantes} días para acabar ${MES_LABEL}. Hay documentación mensual pendiente de recibir.`;
-  } else {
-    msg = `📅 Documentación mensual de ${MES_LABEL} pendiente en algunas subcontratas.`;
-  }
-  return `<div class="alert-mes">
-    <div class="alert-icon">🔔</div>
-    <div><strong>${msg}</strong></div>
-  </div>`;
-}
-
-// ============================================================
-// ESTADÍSTICAS
-// ============================================================
-function calcStats(sub){
-  const vals = Object.values(sub.checksFijos);
-  const fijos = vals.filter(v=>v===true).length;
-  const naCount = vals.filter(v=>v==='na').length;
-  const extrasTotal = sub.docsExtra ? Object.values(sub.docsExtra).reduce((a,v)=>a+v.length,0) : 0;
-  const totalFijos = TOTAL_FIJOS + extrasTotal - naCount;
-  const mesKey_ = mesKey(ANO_ACTUAL, MES_ACTUAL);
-  const mensualOk = DOCS_MENSUAL.filter(d=>sub.checksMensual[d]?.[mesKey_]).length;
-  const totalMensualMes = DOCS_MENSUAL.length;
-  return {fijos, totalFijos: Math.max(totalFijos,0), mensualOk, totalMensualMes};
-}
-
-function colores(pct){
-  if(pct===100) return ['#1D9E75','#d4f5ea'];
-  if(pct>0)     return ['#EF9F27','#fef3d4'];
-  return              ['#E24B4A','#fce8e8'];
-}
-
-// ============================================================
-// RENDER MESES PARA CADA DOC MENSUAL
-// ============================================================
-function mesesDisponibles(sub){
-  // Desde mes de alta hasta mes actual
-  const fa = sub.fechaAlta ? new Date(sub.fechaAlta) : new Date();
-  const meses = [];
-  let a = fa.getFullYear(), m = fa.getMonth();
-  while(a < ANO_ACTUAL || (a===ANO_ACTUAL && m<=MES_ACTUAL)){
-    meses.push({ano:a, mes:m, label:MESES[m]+(a!==ANO_ACTUAL?' '+a:'')});
-    m++;
-    if(m>11){ m=0; a++; }
-  }
-  return meses;
-}
-
-function renderMensual(sub){
-  const meses = mesesDisponibles(sub);
-  if(!meses.length) return '';
-  // Mes activo: por defecto el mes actual
-  if(!sub._mesVisto) sub._mesVisto = mesKey(ANO_ACTUAL, MES_ACTUAL);
-  const mesActivoKey = sub._mesVisto;
-  const mesActivo = meses.find(m=>mesKey(m.ano,m.mes)===mesActivoKey) || meses[meses.length-1];
-
-  // Pills de meses
-  let pills = '<div class="mes-selector">';
-  meses.forEach(({ano,mes,label})=>{
-    const key = mesKey(ano,mes);
-    const esMesActual = ano===ANO_ACTUAL && mes===MES_ACTUAL;
-    const docsOk = DOCS_MENSUAL.filter(d=>sub.checksMensual[d]?.[key]).length;
-    const allOk = docsOk === DOCS_MENSUAL.length;
-    const activo = key === mesActivoKey;
-    let estilo = '';
-    if(!activo){
-      if(allOk) estilo = 'style="background:#d4f5ea;border-color:#1D9E75;color:#1D9E75"';
-      else if(esMesActual) estilo = 'style="background:#fff0f0;border-color:#f5c0c0;color:#c04040"';
-    }
-    pills += `<button class="mes-pill${activo?' activo':''}" ${estilo} onclick="selMes('${sub.id}','${key}')">${label} ${allOk?'✓':docsOk+'/'+DOCS_MENSUAL.length}</button>`;
-  });
-  pills += '</div>';
-
-  // Panel del mes activo
-  const {ano, mes, label} = mesActivo;
-  const key = mesKey(ano, mes);
-  const docsOk = DOCS_MENSUAL.filter(d=>sub.checksMensual[d]?.[key]).length;
-  let panel = `<div class="mes-panel">
-    <div class="mes-panel-titulo">
-      <span>📅 ${label}</span>
-      <span style="font-size:11px;color:${docsOk===DOCS_MENSUAL.length?'#1D9E75':'#EF9F27'}">${docsOk}/${DOCS_MENSUAL.length} recibidos</span>
-    </div>`;
-  DOCS_MENSUAL.forEach(doc=>{
-    const on = sub.checksMensual[doc]?.[key];
-    panel += `<div class="mes-doc-item${on?' on':''}" data-sub="${sub.id}" data-doc='${JSON.stringify(doc)}' data-ano="${ano}" data-mes="${mes}">
-      <div class="mes-doc-cb${on?' on':''}">${on?'✓':''}</div>
-      <span class="mes-doc-txt">${doc}</span>
-    </div>`;
-  });
-  panel += '</div>';
-
-  return `<div class="mes-section">${pills}${panel}</div>`;
-}
-
-// ============================================================
-// RENDER MAIN
-// ============================================================
-function renderMain(){
-  const titulo = document.getElementById('obra-titulo');
-  const content = document.getElementById('main-content');
-  const actions = document.getElementById('topbar-actions');
-
-  if(!obraActual){
-    titulo.textContent = 'Selecciona una obra';
-    actions.innerHTML = '';
-    content.innerHTML = `<div class="no-obra">
-      <div class="no-obra-inner">
-        <div style="font-size:48px;margin-bottom:12px">🏗️</div>
-        <h3>Ninguna obra seleccionada</h3>
-        <p>Crea o selecciona una obra en el panel izquierdo.</p>
-        <button class="primary" onclick="abrirModalObra(null)">+ Crear obra</button>
-      </div>
-    </div>`;
-    return;
-  }
-
-  const obra = db.obras.find(x=>x.id===obraActual);
-  if(!obra){ obraActual=null; renderMain(); return; }
-
-  titulo.textContent = obra.nombre;
-  actions.innerHTML = `
-    <button class="sm" onclick="abrirModalObra('${obra.id}')">✎ Editar obra</button>
-    <button class="primary sm" onclick="abrirModalProv()">+ Añadir subcontrata</button>
-  `;
-
-  // Stats
-  const total = obra.subcontratas.length;
-  const mesKey_ = mesKey(ANO_ACTUAL, MES_ACTUAL);
-  const alDia = obra.subcontratas.filter(s=>{
-    const st = calcStats(s);
-    return st.fijos===st.totalFijos && st.mensualOk===st.totalMensualMes;
-  }).length;
-  const inc = obra.subcontratas.filter(s=>{
-    const st=calcStats(s); return st.fijos<st.totalFijos||(st.mensualOk<st.totalMensualMes);
-  }).length;
-  const totalDocs = total*(TOTAL_FIJOS+DOCS_MENSUAL.length);
-  const recibidos = obra.subcontratas.reduce((a,s)=>{
-    const st=calcStats(s); return a+st.fijos+st.mensualOk;
-  },0);
-  const pctTotal = totalDocs?Math.round(recibidos/totalDocs*100):0;
-
-  let html = `
-    ${alertaMes(obra)}
-    <div class="stats">
-      <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Subcontratas</div></div>
-      <div class="stat"><div class="stat-n" style="color:#1D9E75">${alDia}</div><div class="stat-l">Al día</div></div>
-      <div class="stat"><div class="stat-n" style="color:#EF9F27">${inc}</div><div class="stat-l">Incompletas</div></div>
-      <div class="stat"><div class="stat-n">${pctTotal}%</div><div class="stat-l">Completado</div></div>
-    </div>
-  `;
-
-  if(!obra.subcontratas.length){
-    html += `<div class="empty">
-      <div class="empty-icon">👷</div>
-      <p>Aún no hay subcontratas en esta obra.<br>Pulsa <strong>"+ Añadir subcontrata"</strong> para empezar.</p>
-    </div>`;
-  } else {
-    obra.subcontratas.forEach((sub,si)=>{
-      const prov = db.proveedores.find(p=>p.id===sub.provId)||{nombre:'Empresa eliminada',gremio:'',col:'#aaa',bg:'#f0f0f0'};
-      const st = calcStats(sub);
-      const pctFijo = Math.round(st.fijos/st.totalFijos*100);
-      const [col,bg] = colores(pctFijo);
-      const ci = si%PAL.length;
-      const ini = prov.nombre.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
-      const fa = sub.fechaAlta ? new Date(sub.fechaAlta).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) : '';
-      const mesOk = st.mensualOk === st.totalMensualMes;
-      const mesKey_ = mesKey(ANO_ACTUAL, MES_ACTUAL);
-
-      let bodyHtml = '';
-      if(sub.open){
-        // Función auxiliar para renderizar una sección de docs fijos
-        const renderSeccion = (titulo, docs, secId) => {
-          let s = `<div class="sec-title">${titulo}</div>`;
-          // Docs estándar
-          docs.forEach(doc=>{
-            const estado = sub.checksFijos[doc];
-            const on = estado === true;
-            const na = estado === 'na';
-            s += `<div class="doc${on?' on':''}${na?' na':''} doc-fijo" data-sub="${sub.id}" data-doc='${JSON.stringify(doc)}'>
-              <div class="cb${on?' on':''}${na?' na':''}">${on?'✓':na?'—':''}</div>
-              <span class="doc-label">${doc}</span>
-              <button class="doc-na-btn" onclick="event.stopPropagation();toggleNoAplica('${sub.id}',${JSON.stringify(doc)})">${na?'Reactivar':'No aplica'}</button>
-            </div>`;
-          });
-          // Docs personalizados de esta sección
-          const extras = sub.docsExtra?.[secId] || [];
-          extras.forEach(doc=>{
-            const docKey = 'EXTRA:'+secId+':'+doc;
-            const estado = sub.checksFijos[docKey];
-            const on = estado === true;
-            const na = estado === 'na';
-            s += `<div class="doc${on?' on':''}${na?' na':''} doc-fijo" data-sub="${sub.id}" data-doc='${JSON.stringify(docKey)}'>
-              <div class="cb${on?' on':''}${na?' na':''}">${on?'✓':na?'—':''}</div>
-              <span class="doc-label">${doc}</span>
-              <span class="doc-custom-del" onclick="event.stopPropagation();eliminarDocExtra('${sub.id}','${secId}',${JSON.stringify(doc)})" title="Eliminar">✕</span>
-              <button class="doc-na-btn" onclick="event.stopPropagation();toggleNoAplica('${sub.id}',${JSON.stringify(docKey)})">${na?'Reactivar':'No aplica'}</button>
-            </div>`;
-          });
-          // Fila para añadir doc personalizado
-          const inputId = 'add-'+sub.id+'-'+secId;
-          s += `<div class="add-doc-row">
-            <input class="add-doc-input" id="${inputId}" placeholder="+ Añadir documento personalizado…" onkeydown="if(event.key==='Enter')addDocPersonalizado('${sub.id}','${secId}','${inputId}')"/>
-            <button class="add-doc-btn" onclick="addDocPersonalizado('${sub.id}','${secId}','${inputId}')">Añadir</button>
-          </div>`;
-          return s;
-        };
-
-        // EMPRESA
-        bodyHtml += renderSeccion('📁 Documentación de empresa', DOCS_EMPRESA, 'empresa');
-        // TRABAJADORES
-        bodyHtml += renderSeccion('👷 Documentación de trabajadores', DOCS_TRABAJADORES, 'trabajadores');
-        // MAQUINARIA
-        bodyHtml += renderSeccion('🏗️ Maquinaria y equipos', DOCS_MAQUINARIA, 'maquinaria');
-        // MENSUAL
-        bodyHtml += `<div class="sec-title">📅 Documentación mensual 
-          <span style="font-size:10px;padding:2px 7px;border-radius:8px;background:${mesOk?'#d4f5ea':'#fce8e8'};color:${mesOk?'#1D9E75':'#a32d2d'};font-weight:600">
-            ${MES_LABEL}: ${st.mensualOk}/${st.totalMensualMes}
-          </span>
-        </div>`;
-        bodyHtml += renderMensual(sub);
-        // ACCIONES
-        bodyHtml += `<div class="card-actions">
-          <button class="sm" onclick="event.stopPropagation();editarProv('${sub.id}')">✎ Editar empresa</button>
-          <button class="sm danger" style="margin-left:auto" onclick="event.stopPropagation();eliminarSubcontrata('${sub.id}')">✕ Quitar de obra</button>
-        </div>`;
-      }
-
-      html += `<div class="card">
-        <div class="card-head" onclick="toggleOpen('${sub.id}')">
-          <div class="avatar" style="background:${PAL[ci][1]};color:${PAL[ci][0]}">${ini}</div>
-          <div class="card-info">
-            <div class="card-name">${prov.nombre}</div>
-            <div class="card-sub">${prov.gremio||'Sin gremio'}${prov.contacto?' · '+prov.contacto:''}</div>
-            ${fa?`<div class="fecha-alta">Alta: <span>${fa}</span></div>`:''}
-          </div>
-          <span class="badge" style="background:${bg};color:${col}">${st.fijos}/${st.totalFijos}</span>
-          <div class="dot" style="background:${col}"></div>
-          <span class="chevron">${sub.open?'▲':'▼'}</span>
-        </div>
-        ${sub.open?`<div class="card-body">
-          <div class="bar-wrap"><div class="bar" style="width:${pctFijo}%;background:${col}"></div></div>
-          ${bodyHtml}
-        </div>`:''}
-      </div>`;
-    });
-  }
-
-  html += `<div class="note">💡 Los datos se guardan automáticamente en este navegador. Para revisar documentos escaneados, súbelos en el chat de Claude indicando a qué empresa y obra pertenecen.</div>`;
-  content.innerHTML = html;
-}
-
-// ============================================================
-// BASE DE PROVEEDORES
-// ============================================================
-function abrirModalProveedores(){
-  const list = document.getElementById('base-prov-list');
-  if(!db.proveedores.length){
-    list.innerHTML = '<p style="font-size:13px;color:#aaa;text-align:center;padding:20px">Sin proveedores registrados aún</p>';
-  } else {
-    list.innerHTML = db.proveedores.map(p=>`
-      <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0ec">
-        <div>
-          <div style="font-size:13px;font-weight:600">${p.nombre}</div>
-          <div style="font-size:12px;color:#888">${p.gremio||''}${p.contacto?' · '+p.contacto:''}</div>
-          <div style="font-size:11px;color:#aaa">${p.email||''}</div>
-        </div>
-      </div>
-    `).join('');
-  }
-  document.getElementById('modal-base-prov').classList.add('on');
-}
-
-function editarProv(subId){
-  // Editar empresa en base de datos desde dentro de una obra
-  const obra = db.obras.find(x=>x.id===obraActual);
-  const sub = obra.subcontratas.find(s=>s.id===subId);
-  const prov = db.proveedores.find(p=>p.id===sub.provId);
-  if(!prov) return;
-  switchTab('nuevo');
+function abrirEditarSub(subId) {
+  subEditId = subId;
+  const obra = db.obras.find(x => x.id === obraActual);
+  const sub = obra.subcontratas.find(s => s.id === subId);
+  const prov = db.proveedores.find(p => p.id === sub.provId);
+  if (!prov) return;
+  switchTabProv('nuevo');
   document.getElementById('np-nombre').value = prov.nombre;
   document.getElementById('np-gremio').value = prov.gremio||'';
   document.getElementById('np-contacto').value = prov.contacto||'';
   document.getElementById('np-email').value = prov.email||'';
   document.getElementById('prov-fecha-alta').value = sub.fechaAlta||'';
-  document.getElementById('modal-prov-h').textContent = 'Editar subcontrata';
-  document.getElementById('modal-prov').dataset.editSubId = subId;
   document.getElementById('modal-prov').classList.add('on');
 }
 
-
-// ============================================================
-// UTILS
-// ============================================================
-function cerrarModales(){
-  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('on'));
-  provSelId = null;
-  delete document.getElementById('modal-prov').dataset.editSubId;
-}
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)cerrarModales();}));
-
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2400);
+async function quitarSub(subId, obra) {
+  if (!confirm('¿Quitar esta subcontrata de la obra?')) return;
+  obra.subcontratas = obra.subcontratas.filter(s => s.id !== subId);
+  await guardarDB();
+  renderMain();
+  toast('Subcontrata eliminada');
 }
 
-// Alerta al cambio de mes: comprobar si el mes guardado != mes actual
-function checkAlertaCambioMes(){
-  const saved = localStorage.getItem('gestor_ultimo_mes');
-  const actual = ANO_ACTUAL+'_'+MES_ACTUAL;
-  if(saved && saved !== actual){
-    // Ha cambiado el mes: mostrar alerta
-    setTimeout(()=>{
-      alert(`📅 Cambio de mes detectado.\n\n¡Recuerda solicitar la documentación mensual de ${MES_LABEL} a todas tus subcontratas!`);
-    }, 800);
+// BASE PROVEEDORES
+function abrirBaseProv() {
+  const lista = document.getElementById('base-prov-lista');
+  lista.innerHTML = '';
+  if (!db.proveedores.length) {
+    lista.innerHTML = '<p style="font-size:13px;color:#aaa;text-align:center;padding:20px">Sin proveedores registrados</p>';
+  } else {
+    db.proveedores.forEach(p => {
+      const div = document.createElement('div');
+      div.style.cssText = 'padding:9px 0;border-bottom:1px solid #f0f0ec';
+      div.innerHTML = '<div style="font-size:13px;font-weight:600">' + p.nombre + '</div>' +
+        '<div style="font-size:12px;color:#888">' + (p.gremio||'') + (p.contacto?' · '+p.contacto:'') + '</div>' +
+        '<div style="font-size:11px;color:#aaa">' + (p.email||'') + '</div>';
+      lista.appendChild(div);
+    });
   }
-  localStorage.setItem('gestor_ultimo_mes', actual);
+  document.getElementById('modal-base').classList.add('on');
+}
+
+// ============================================================
+// EVENT LISTENERS ESTÁTICOS
+// ============================================================
+document.getElementById('btn-nueva-obra').addEventListener('click', () => abrirModalObra(null));
+document.getElementById('btn-primera-obra')?.addEventListener('click', () => abrirModalObra(null));
+document.getElementById('btn-cancelar-obra').addEventListener('click', cerrarModales);
+document.getElementById('btn-guardar-obra').addEventListener('click', guardarObra);
+document.getElementById('btn-cancelar-prov').addEventListener('click', cerrarModales);
+document.getElementById('btn-guardar-prov').addEventListener('click', () => {
+  if (subEditId) {
+    // modo edición
+    const obra = db.obras.find(x => x.id === obraActual);
+    const sub = obra.subcontratas.find(s => s.id === subEditId);
+    const prov = db.proveedores.find(p => p.id === sub.provId);
+    if (prov) {
+      prov.nombre = document.getElementById('np-nombre').value.trim() || prov.nombre;
+      prov.gremio = document.getElementById('np-gremio').value.trim();
+      prov.contacto = document.getElementById('np-contacto').value.trim();
+      prov.email = document.getElementById('np-email').value.trim();
+    }
+    sub.fechaAlta = document.getElementById('prov-fecha-alta').value || sub.fechaAlta;
+    subEditId = null;
+    cerrarModales();
+    guardarDB().then(() => { renderMain(); toast('Datos actualizados ✓'); });
+  } else {
+    guardarProveedorEnObra();
+  }
+});
+document.getElementById('tab-existente').addEventListener('click', () => switchTabProv('existente'));
+document.getElementById('tab-nuevo').addEventListener('click', () => switchTabProv('nuevo'));
+document.getElementById('prov-search').addEventListener('input', filtrarProveedores);
+document.getElementById('btn-base-prov').addEventListener('click', abrirBaseProv);
+document.getElementById('btn-cerrar-base').addEventListener('click', cerrarModales);
+
+// ============================================================
+// ALERTA CAMBIO DE MES
+// ============================================================
+function checkCambioMes() {
+  const saved = localStorage.getItem('ultimo_mes');
+  const actual = mesKey(ANO_ACT, MES_ACT);
+  if (saved && saved !== actual) {
+    setTimeout(() => alert('📅 Cambio de mes detectado.\n\n¡Recuerda solicitar la documentación mensual de ' + MES_LABEL + ' a todas las subcontratas!'), 800);
+  }
+  localStorage.setItem('ultimo_mes', actual);
 }
 
 // ============================================================
 // INIT
 // ============================================================
 (async () => {
-  await cargar();
-  checkAlertaCambioMes();
-  if(db.obras.length) obraActual = db.obras[0].id;
+  document.getElementById('main-content').innerHTML =
+    '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px">' +
+    '<div class="spinner"></div><div style="font-size:13px;color:#aaa">Cargando datos…</div></div>';
+  await cargarDB();
+  checkCambioMes();
+  if (db.obras.length) obraActual = db.obras[0].id;
   renderSidebar();
   renderMain();
 })();
