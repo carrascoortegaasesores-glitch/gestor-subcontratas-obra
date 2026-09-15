@@ -306,11 +306,17 @@ let mesVisto = {}; // {subId: 'ANO_MES'}
 // ============================================================
 async function cargarDB() {
   try {
-    const r = await fetch(API_URL + '?action=load');
+    const r = await fetch(API_URL + '?action=load', {cache: 'no-store'});
     const text = await r.text();
     const parsed = JSON.parse(text);
-    if (parsed && parsed.obras) { db = parsed; return; }
-  } catch(e) { console.warn('Sheets error:', e); }
+    if (parsed && parsed.obras) {
+      db = parsed;
+      try { localStorage.setItem('gestor_v5', JSON.stringify(db)); } catch(e) {}
+      return;
+    }
+  } catch(e) {
+    console.warn('Sheets no disponible, usando localStorage:', e);
+  }
   try {
     const s = localStorage.getItem('gestor_v5');
     if (s) db = JSON.parse(s);
@@ -320,11 +326,18 @@ async function cargarDB() {
 }
 
 async function guardarDB() {
-  try { localStorage.setItem('gestor_v5', JSON.stringify(db)); } catch(e) {}
+  const payload = JSON.stringify(db);
+  try { localStorage.setItem('gestor_v5', payload); } catch(e) {}
   try {
-    await fetch(API_URL, { method:'POST', body: JSON.stringify(db) });
+    // Guardar via GET con datos codificados (evita CORS de POST)
+    const encoded = encodeURIComponent(payload);
+    await fetch(API_URL + '?action=save&data=' + encoded, {
+      method: 'GET',
+      cache: 'no-store'
+    });
   } catch(e) {
-    toast('⚠️ Sin conexión — guardado local');
+    console.warn('Error guardando en Sheets:', e);
+    toast('⚠️ Sin conexión — datos guardados localmente');
   }
 }
 
