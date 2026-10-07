@@ -134,6 +134,30 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 .trb-add-form input{padding:6px 9px;font-size:12px}
 .spinner{width:28px;height:28px;border:3px solid #e0e0e0;border-top-color:#1a1a1a;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* INFORME */
+.informe-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.informe-overlay.on{display:flex}
+.informe-panel{background:#fff;border-radius:14px;width:100%;max-width:680px;margin:auto;box-shadow:0 8px 40px rgba(0,0,0,0.2);overflow:hidden}
+.informe-head{background:#1a1a1a;color:#fff;padding:18px 22px;display:flex;align-items:center;gap:12px}
+.informe-head h2{font-size:15px;font-weight:700;flex:1}
+.informe-head .sub-info{font-size:12px;color:#aaa;margin-top:2px}
+.informe-filtros{padding:14px 22px;background:#fafaf8;border-bottom:1px solid #e8e8e0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.informe-filtros label{font-size:12px;color:#666;margin-bottom:0}
+.informe-filtros select{width:auto;padding:6px 10px;font-size:12px}
+.informe-body{padding:0 22px 22px}
+.inf-seccion{margin-top:18px}
+.inf-sec-titulo{font-size:12px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;padding:10px 0 6px;border-bottom:1px solid #f0f0ec;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.inf-ok{color:#1D9E75;font-size:11px;font-weight:600}
+.inf-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;background:#fff8f8;border:1px solid #fde8e8;margin-bottom:4px}
+.inf-item-icon{font-size:14px;flex-shrink:0}
+.inf-item-txt{font-size:13px;color:#333;flex:1}
+.inf-item-mes{font-size:11px;color:#aaa;flex-shrink:0}
+.inf-trabajador{margin-top:8px;padding:8px 10px;background:#fafaf8;border-radius:8px;border:1px solid #e8e8e0}
+.inf-trb-nombre{font-size:12px;font-weight:600;color:#555;margin-bottom:6px}
+.inf-todo-ok{text-align:center;padding:24px;color:#1D9E75;font-size:14px;font-weight:600}
+.informe-foot{padding:14px 22px;border-top:1px solid #e8e8e0;display:flex;gap:8px;justify-content:flex-end;background:#fafaf8}
+.btn-imprimir{font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;cursor:pointer;font-family:inherit}
+.btn-imprimir:hover{background:#f0f0ec}
 </style>
 </head>
 <body>
@@ -225,6 +249,31 @@ label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- INFORME -->
+<div class="informe-overlay" id="informe-overlay">
+  <div class="informe-panel">
+    <div class="informe-head">
+      <div>
+        <h2 id="inf-titulo">Documentación pendiente</h2>
+        <div class="sub-info" id="inf-subtitulo"></div>
+      </div>
+      <button style="background:transparent;border:1px solid #555;color:#fff;font-size:12px;padding:5px 12px;border-radius:8px;cursor:pointer" id="inf-cerrar">Cerrar</button>
+    </div>
+    <div class="informe-filtros">
+      <label>Documentación mensual desde</label>
+      <select id="inf-desde"></select>
+      <label>hasta</label>
+      <select id="inf-hasta"></select>
+      <button style="font-size:12px;padding:5px 12px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;cursor:pointer;font-family:inherit" id="inf-aplicar">Aplicar</button>
+    </div>
+    <div class="informe-body" id="inf-body"></div>
+    <div class="informe-foot">
+      <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir / PDF</button>
+      <button class="btn-imprimir" id="inf-cerrar2">Cerrar</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ============================================================
@@ -624,7 +673,12 @@ function buildCard(sub, si, obra) {
   btnDel.className = 'sm danger'; btnDel.textContent = '✕ Quitar de obra';
   btnDel.style.marginLeft = 'auto';
   btnDel.addEventListener('click', (e) => { e.stopPropagation(); quitarSub(sub.id, obra); });
+  const btnInf = document.createElement('button');
+  btnInf.className = 'sm';
+  btnInf.innerHTML = '📋 Informe pendientes';
+  btnInf.addEventListener('click', (e) => { e.stopPropagation(); abrirInforme(sub, obra); });
   acts.appendChild(btnEd);
+  acts.appendChild(btnInf);
   acts.appendChild(btnDel);
   body.appendChild(acts);
 
@@ -1214,6 +1268,168 @@ function abrirBaseProv() {
   }
   document.getElementById('modal-base').classList.add('on');
 }
+
+// ============================================================
+// INFORME DE DOCUMENTACIÓN PENDIENTE
+// ============================================================
+function abrirInforme(sub, obra) {
+  const prov = db.proveedores.find(p => p.id === sub.provId) || {nombre:'Empresa'};
+  document.getElementById('inf-titulo').textContent = '📋 Documentación pendiente';
+  document.getElementById('inf-subtitulo').textContent = prov.nombre + ' — ' + obra.nombre;
+
+  // Calcular rango de meses disponibles desde alta del proveedor hasta hoy
+  const meses = mesesDesdeAlta(sub);
+  const desde = document.getElementById('inf-desde');
+  const hasta = document.getElementById('inf-hasta');
+  desde.innerHTML = '';
+  hasta.innerHTML = '';
+  meses.forEach(({ano, mes, label}) => {
+    const key = mesKey(ano, mes);
+    const optD = document.createElement('option');
+    optD.value = key; optD.textContent = label;
+    const optH = document.createElement('option');
+    optH.value = key; optH.textContent = label;
+    desde.appendChild(optD);
+    hasta.appendChild(optH);
+  });
+  // Por defecto: desde el primer mes hasta el mes actual
+  desde.selectedIndex = 0;
+  hasta.selectedIndex = hasta.options.length - 1;
+
+  renderInforme(sub);
+  document.getElementById('informe-overlay').classList.add('on');
+
+  document.getElementById('inf-aplicar').onclick = () => renderInforme(sub);
+  document.getElementById('inf-cerrar').onclick = () => document.getElementById('informe-overlay').classList.remove('on');
+  document.getElementById('inf-cerrar2').onclick = () => document.getElementById('informe-overlay').classList.remove('on');
+}
+
+function renderInforme(sub) {
+  const body = document.getElementById('inf-body');
+  body.innerHTML = '';
+
+  const desdeKey = document.getElementById('inf-desde').value;
+  const hastaKey = document.getElementById('inf-hasta').value;
+  const meses = mesesDesdeAlta(sub);
+
+  // Filtrar meses en el rango seleccionado
+  const [desdeAno, desMes] = desdeKey.split('_').map(Number);
+  const [hastaAno, hasMes] = hastaKey.split('_').map(Number);
+  const mesesRango = meses.filter(({ano, mes}) => {
+    const despues = ano > desdeAno || (ano === desdeAno && mes >= desMes);
+    const antes   = ano < hastaAno || (ano === hastaAno && mes <= hasMes);
+    return despues && antes;
+  });
+
+  let hayAlgoPendiente = false;
+
+  // ── SECCIÓN EMPRESA ──
+  const pendEmp = DOCS_EMP.filter(d => sub.checks[d] !== 'ok' && sub.checks[d] !== 'na');
+  const extrasEmpPend = (sub.extras?.emp || []).filter(d => sub.checks['X:'+d] !== 'ok' && sub.checks['X:'+d] !== 'na');
+  if (pendEmp.length || extrasEmpPend.length) {
+    hayAlgoPendiente = true;
+    body.appendChild(crearSeccionInf('📁 Documentación de empresa', [...pendEmp, ...extrasEmpPend], null));
+  }
+
+  // ── SECCIÓN MAQUINARIA ──
+  const pendMaq = DOCS_MAQ.filter(d => sub.checks[d] !== 'ok' && sub.checks[d] !== 'na');
+  const extrasMaqPend = (sub.extras?.maq || []).filter(d => sub.checks['X:'+d] !== 'ok' && sub.checks['X:'+d] !== 'na');
+  if (pendMaq.length || extrasMaqPend.length) {
+    hayAlgoPendiente = true;
+    body.appendChild(crearSeccionInf('🏗️ Maquinaria y equipos', [...pendMaq, ...extrasMaqPend], null));
+  }
+
+  // ── TRABAJADORES ──
+  (sub.trabajadores || []).forEach(trb => {
+    const pendTrb = DOCS_TRB.filter(d => trb.checks[d] !== 'ok' && trb.checks[d] !== 'na');
+    const extrasTrbPend = (trb.extras || []).filter(d => trb.checks['XT:'+d] !== 'ok' && trb.checks['XT:'+d] !== 'na');
+    if (pendTrb.length || extrasTrbPend.length) {
+      hayAlgoPendiente = true;
+      const wrap = document.createElement('div');
+      const secTrb = crearSeccionInf('👷 Trabajadores', null, null);
+      const trbWrap = document.createElement('div');
+      trbWrap.className = 'inf-trabajador';
+      const trbNom = document.createElement('div');
+      trbNom.className = 'inf-trb-nombre';
+      trbNom.textContent = trb.nombre + (trb.puesto ? ' — ' + trb.puesto : '');
+      trbWrap.appendChild(trbNom);
+      [...pendTrb, ...extrasTrbPend].forEach(doc => {
+        trbWrap.appendChild(crearItemInf(doc, null));
+      });
+      secTrb.appendChild(trbWrap);
+      body.appendChild(secTrb);
+    }
+  });
+
+  // ── DOCUMENTACIÓN MENSUAL ──
+  const pendMensualPorMes = [];
+  mesesRango.forEach(({ano, mes, label}) => {
+    const key = mesKey(ano, mes);
+    const pend = DOCS_MEN.filter(d => !sub.checksM[d]?.[key]);
+    if (pend.length) {
+      pendMensualPorMes.push({label, pend});
+    }
+  });
+
+  if (pendMensualPorMes.length) {
+    hayAlgoPendiente = true;
+    const secMen = document.createElement('div');
+    secMen.className = 'inf-seccion';
+    const tit = document.createElement('div');
+    tit.className = 'inf-sec-titulo';
+    tit.innerHTML = '<span>📅 Documentación mensual</span><span style="color:#E24B4A;font-size:11px">' + pendMensualPorMes.length + ' mes(es) con pendientes</span>';
+    secMen.appendChild(tit);
+
+    pendMensualPorMes.forEach(({label, pend}) => {
+      const mesWrap = document.createElement('div');
+      mesWrap.style.cssText = 'margin-bottom:10px';
+      const mesLabel = document.createElement('div');
+      mesLabel.style.cssText = 'font-size:11px;font-weight:700;color:#888;margin-bottom:4px;text-transform:uppercase';
+      mesLabel.textContent = label;
+      mesWrap.appendChild(mesLabel);
+      pend.forEach(doc => {
+        mesWrap.appendChild(crearItemInf(doc, label));
+      });
+      secMen.appendChild(mesWrap);
+    });
+    body.appendChild(secMen);
+  }
+
+  if (!hayAlgoPendiente) {
+    const ok = document.createElement('div');
+    ok.className = 'inf-todo-ok';
+    ok.innerHTML = '✅ ¡Todo al día!<br><span style="font-size:12px;color:#888;font-weight:400">No hay documentación pendiente en el periodo seleccionado.</span>';
+    body.appendChild(ok);
+  }
+}
+
+function crearSeccionInf(titulo, docs, extra) {
+  const sec = document.createElement('div');
+  sec.className = 'inf-seccion';
+  const tit = document.createElement('div');
+  tit.className = 'inf-sec-titulo';
+  tit.innerHTML = '<span>' + titulo + '</span>';
+  sec.appendChild(tit);
+  if (docs) {
+    docs.forEach(doc => sec.appendChild(crearItemInf(doc, null)));
+  }
+  return sec;
+}
+
+function crearItemInf(doc, mes) {
+  const item = document.createElement('div');
+  item.className = 'inf-item';
+  item.innerHTML =
+    '<span class="inf-item-icon">⚠️</span>' +
+    '<span class="inf-item-txt">' + doc + '</span>' +
+    (mes ? '<span class="inf-item-mes">' + mes + '</span>' : '');
+  return item;
+}
+
+// Cerrar informe al click fuera
+document.getElementById('informe-overlay').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('on');
+});
 
 // ============================================================
 // EVENT LISTENERS ESTÁTICOS
