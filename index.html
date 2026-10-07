@@ -327,17 +327,20 @@ async function cargarDB() {
 
 async function guardarDB() {
   const payload = JSON.stringify(db);
+  // Guardar local siempre
   try { localStorage.setItem('gestor_v5', payload); } catch(e) {}
+  // Guardar en Sheets con POST no-cors
+  // Con no-cors no podemos leer la respuesta pero el POST llega al servidor
   try {
-    // Guardar via GET con datos codificados (evita CORS de POST)
-    const encoded = encodeURIComponent(payload);
-    await fetch(API_URL + '?action=save&data=' + encoded, {
-      method: 'GET',
-      cache: 'no-store'
+    fetch(API_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'text/plain'},
+      body: payload
     });
+    // No hacemos await — guardamos en segundo plano sin bloquear la UI
   } catch(e) {
     console.warn('Error guardando en Sheets:', e);
-    toast('⚠️ Sin conexión — datos guardados localmente');
   }
 }
 
@@ -582,17 +585,16 @@ function buildCard(sub, si, obra) {
   head.addEventListener('click', () => {
     sub.open = !sub.open;
     guardarDB();
-    const body = card.querySelector('.card-body');
-    if (body) body.style.display = sub.open ? '' : 'none';
+    const bodyEl = card.querySelector('.card-body');
+    if (bodyEl) bodyEl.style.display = sub.open ? '' : 'none';
     head.querySelector('.chevron').textContent = sub.open ? '▲' : '▼';
   });
   card.appendChild(head);
 
-  if (!sub.open) return card;
-
-  // CUERPO
+  // SIEMPRE construimos el body
   const body = document.createElement('div');
   body.className = 'card-body';
+  body.style.display = sub.open ? '' : 'none';
 
   // Barra de progreso
   const barWrap = document.createElement('div');
@@ -823,16 +825,16 @@ function buildTrbCard(sub, trb, ti) {
   head.addEventListener('click', () => {
     trb.open = !trb.open;
     guardarDB();
-    const body = card.querySelector('.trb-body');
-    if (body) body.style.display = trb.open ? '' : 'none';
+    const bodyEl = card.querySelector('.trb-body');
+    if (bodyEl) bodyEl.style.display = trb.open ? '' : 'none';
     head.querySelector('.chevron').textContent = trb.open ? '▲' : '▼';
   });
   card.appendChild(head);
 
-  if (!trb.open) return card;
-
+  // SIEMPRE construimos el body — solo lo ocultamos con display:none
   const body = document.createElement('div');
   body.className = 'trb-body';
+  body.style.display = trb.open ? '' : 'none';
 
   // Docs estándar del trabajador
   DOCS_TRB.forEach(doc => {
