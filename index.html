@@ -354,25 +354,46 @@ let mesVisto = {}; // {subId: 'ANO_MES'}
 // PERSISTENCIA
 // ============================================================
 async function cargarDB() {
-  // Intentamos varias estrategias para saltar CORS
-  const urls = [
-    'https://corsproxy.io/?' + encodeURIComponent(API_URL + '?action=load'),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent(API_URL + '?action=load'),
-    API_URL + '?action=load'
-  ];
-  for (const url of urls) {
-    try {
-      const r = await fetch(url, {cache: 'no-store'});
-      const text = await r.text();
-      const parsed = JSON.parse(text);
-      if (parsed && parsed.obras) {
-        db = parsed;
-        try { localStorage.setItem('gestor_v5', JSON.stringify(db)); } catch(e) {}
-        return;
-      }
-    } catch(e) {
-      console.warn('Fallo cargando desde', url, e);
+  // Carga mediante JSONP para evitar CORS (Apps Script soporta callback param)
+  try {
+    const data = await new Promise((resolve, reject) => {
+      const cbName = '_cb' + Date.now();
+      const script = document.createElement('script');
+      const timer = setTimeout(() => {
+        delete window[cbName];
+        script.remove();
+        reject(new Error('timeout'));
+      }, 8000);
+      window[cbName] = (d) => {
+        clearTimeout(timer);
+        delete window[cbName];
+        script.remove();
+        resolve(d);
+      };
+      script.src = API_URL + '?action=load&callback=' + cbName + '&_=' + Date.now();
+      script.onerror = () => { clearTimeout(timer); delete window[cbName]; script.remove(); reject(new Error('script error')); };
+      document.head.appendChild(script);
+    });
+    if (data && data.obras) {
+      db = data;
+      try { localStorage.setItem('gestor_v5', JSON.stringify(db)); } catch(e) {}
+      return;
     }
+  } catch(e) {
+    console.warn('JSONP falló, intentando fetch directo:', e);
+  }
+  // Fallback: fetch directo (puede fallar por CORS en algunos navegadores)
+  try {
+    const r = await fetch(API_URL + '?action=load&_=' + Date.now(), {cache: 'no-store'});
+    const text = await r.text();
+    const parsed = JSON.parse(text);
+    if (parsed && parsed.obras) {
+      db = parsed;
+      try { localStorage.setItem('gestor_v5', JSON.stringify(db)); } catch(e) {}
+      return;
+    }
+  } catch(e) {
+    console.warn('Fetch directo falló, usando localStorage:', e);
   }
   try {
     const s = localStorage.getItem('gestor_v5');
