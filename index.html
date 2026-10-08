@@ -354,17 +354,25 @@ let mesVisto = {}; // {subId: 'ANO_MES'}
 // PERSISTENCIA
 // ============================================================
 async function cargarDB() {
-  try {
-    const r = await fetch(API_URL + '?action=load', {cache: 'no-store', redirect: 'follow'});
-    const text = await r.text();
-    const parsed = JSON.parse(text);
-    if (parsed && parsed.obras) {
-      db = parsed;
-      try { localStorage.setItem('gestor_v5', JSON.stringify(db)); } catch(e) {}
-      return;
+  // Intentamos varias estrategias para saltar CORS
+  const urls = [
+    'https://corsproxy.io/?' + encodeURIComponent(API_URL + '?action=load'),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(API_URL + '?action=load'),
+    API_URL + '?action=load'
+  ];
+  for (const url of urls) {
+    try {
+      const r = await fetch(url, {cache: 'no-store'});
+      const text = await r.text();
+      const parsed = JSON.parse(text);
+      if (parsed && parsed.obras) {
+        db = parsed;
+        try { localStorage.setItem('gestor_v5', JSON.stringify(db)); } catch(e) {}
+        return;
+      }
+    } catch(e) {
+      console.warn('Fallo cargando desde', url, e);
     }
-  } catch(e) {
-    console.warn('Sheets no disponible, usando localStorage:', e);
   }
   try {
     const s = localStorage.getItem('gestor_v5');
