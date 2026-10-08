@@ -355,7 +355,7 @@ let mesVisto = {}; // {subId: 'ANO_MES'}
 // ============================================================
 async function cargarDB() {
   try {
-    const r = await fetch(API_URL + '?action=load', {cache: 'no-store'});
+    const r = await fetch(API_URL + '?action=load', {cache: 'no-store', redirect: 'follow'});
     const text = await r.text();
     const parsed = JSON.parse(text);
     if (parsed && parsed.obras) {
